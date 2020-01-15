@@ -232,7 +232,7 @@ bool return_bool_argument(char **args, uint8_t arg_cnt, const char *identifier, 
       val = strtof(args[i + 1], NULL);
     }
   }
-  val = constrain(val, 0, 1);
+  //val = constrain(val, 0, 1);
   return val;
 
 }

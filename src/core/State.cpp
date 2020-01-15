@@ -31,19 +31,15 @@ volatile byte mode = 0;
 
 
 
-
-
-
-
 // Low-pass filter
 // actual angle
 Filter filter_y((float)FPID/3.0, FPID);
 // setup Omega Filter to 500 Hz
 Filter omegaFilter(500.0, FPID);
 
-AS5047D myAS5047D(steps_per_revolution, &Serial, PORTA, 15);
-A4954 myA4954(steps_per_revolution, 18, 19, 21, 20, 2, 5);
+AS5047D myAS5047D(Init_steps_per_revolution, &Serial, PORTA, 15);
+A4954 myA4954(Init_steps_per_revolution, 18, 19, 21, 20, 2, 5);
 
 PIDControler myPID(&y, &u, &r);
 
-stepInterface mystepInterface(step_pin, dir_pin, ena_pin, steps_per_revolution, microstepping);
+stepInterface mystepInterface(step_pin, dir_pin, ena_pin, Init_steps_per_revolution, Init_microstepping);

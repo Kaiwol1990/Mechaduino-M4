@@ -16,8 +16,8 @@
 
 
 //---- Step settings -----
-const float stepangle = (360.0 / (steps_per_revolution * microstepping));   // angle of one microstep as float
-const float PA = 360.0 / steps_per_revolution;                      // angle of one fullstep as int
+const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping));   // angle of one microstep as float
+const float PA = 360.0 / Init_steps_per_revolution;                      // angle of one fullstep as int
 
 // ----- gets called with FPID -----
 // ----- calculates the target velocity and PID settings -----

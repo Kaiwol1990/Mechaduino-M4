@@ -4,6 +4,7 @@
 #define __STATE_H__
 //#include <stdint.h>
 #include <arduino.h>
+#include "../Configuration.h"
 
 #include "output/A4954.h"
 #include "sensor/AS5047D.h"
@@ -34,8 +35,6 @@ extern  bool dir;         // flag for  dir setting
 
 //---- lookup table for the encoder reading ----
 extern int16_t fullsteps[200];
-
-
 
 
 // Coil Current

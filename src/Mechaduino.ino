@@ -22,6 +22,7 @@
 */
 
 //#include <Arduino.h>
+#include "core/boot.h"
 #include "core/Utils.h"
 #include "core/Serial.h"
 #include "core/Cmd.h"

@@ -24,11 +24,6 @@ PIDControler::PIDControler(float_t* Input_,  float_t* Output_, float_t* Setpoint
 }
 
 
-float PIDControler::getError() {
-  return error;
-}
-
-
 
 void PIDControler::compute() {
 
@@ -63,7 +58,7 @@ void PIDControler::compute() {
   // PID Terms * * * * * * * * * * * * * * * * * * * * *
 
   // Integral Term
-  IntegrationalTerm += (Ki * error);
+  IntegrationalTerm += (myKi * error);
 
   if (IntegrationalTerm > IntegrationLimit) {
     IntegrationalTerm = IntegrationLimit;
@@ -73,7 +68,7 @@ void PIDControler::compute() {
   }
 
   // compute output
-  localOutput = (Kp * error) + IntegrationalTerm + (Kd * dInput) + (Kf * Jerk) + (Kv * Velocity) + (Kac * Acceleration);// + antiCoggingK;
+  localOutput = (myKp * error) + IntegrationalTerm + (myKd * dInput) + (myKf * Jerk) + (myKv * Velocity) + (myKac * Acceleration);// + antiCoggingK;
 
   if (localOutput > OutputLimit) {
     localOutput = OutputLimit;
@@ -117,9 +112,9 @@ void PIDControler::setLimit(float_t Limit_) {
 void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_) {
 
   // scale Gains with Sampletime
-  Kp = Kp_;
-  Ki = Ki_ * sampleTime;
-  Kd = Kd_ / sampleTime;
+  PIDControler::setKp(Kp_);
+  PIDControler::setKi(Ki_);
+  PIDControler::setKd(Kd_);
 }
 
 
@@ -127,15 +122,15 @@ void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_) {
 void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_, float_t Kf_, float_t Kv_, float_t Kac_) {
 
   // scale Gains with Sampletime
-  Kp = Kp_;
-  Ki = Ki_ * sampleTime;
-  Kd = Kd_ / sampleTime;
+  PIDControler::setKp(Kp_);
+  PIDControler::setKi(Ki_);
+  PIDControler::setKd(Kd_);
 
 
   // advanced parameters
-  Kf = Kf_;
-  Kv = Kv_;
-  Kac = Kac_;
+  PIDControler::setKf(Kf_);
+  PIDControler::setKv(Kv_);
+  PIDControler::setKac(Kac_);
 }
 
 
@@ -153,6 +148,57 @@ void PIDControler::setSampleFreq(uint16_t freq_) {
 }
 
 
+float PIDControler::getError() {
+  return error;
+}
+
+float PIDControler::getKp(){
+  return myKp;
+}
+
+float PIDControler::getKi(){
+  return myKi / sampleTime;
+}
+
+float PIDControler::getKd(){
+  return myKd * sampleTime;
+}
+
+float PIDControler::getKf(){
+  return myKf;
+}
+
+float PIDControler::getKv(){
+  return myKv;
+}
+
+float PIDControler::getKac(){
+  return myKac;
+}
+
+void PIDControler::setKp(float _Kp){
+  myKp = _Kp;
+}
+
+void PIDControler::setKi(float _Ki){
+  myKi = _Ki * sampleTime;
+}
+
+void PIDControler::setKd(float _Kd){
+  myKd = _Kd / sampleTime;
+}
+
+void PIDControler::setKf(float _Kf){
+  myKf = _Kf;
+}
+
+void PIDControler::setKv(float _Kv){
+  myKv = _Kv;
+}
+
+void PIDControler::setKac(float _Kac){
+  myKac = _Kac;
+}
 
 
 

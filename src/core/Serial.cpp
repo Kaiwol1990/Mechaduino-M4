@@ -46,31 +46,31 @@ void reportPostition(int arg_cnt, char **args) {
 void set_gains(int arg_cnt, char **args) {
 
 
-  Kp = return_float_argument(args, arg_cnt, "-Kp", Kp, 0.0, 100.0);
-  Ki = return_float_argument(args, arg_cnt, "-Ki", Ki, 0.0, 1000.0);
-  Kd = return_float_argument(args, arg_cnt, "-Kd", Kd, 0.0, 100.0);
-  Kf = return_float_argument(args, arg_cnt, "-Kf", Kf, 0.0, 100.0);
-  Kv = return_float_argument(args, arg_cnt, "-Kv", Kv, 0.0, 100.0);
-  Kac = return_float_argument(args, arg_cnt, "-Kac", Kac, 0.0, 100.0);
+  float _Kp = return_float_argument(args, arg_cnt, "-Kp", myPID.getKp(), 0.0, 100.0);
+  float _Ki = return_float_argument(args, arg_cnt, "-Ki", myPID.getKi(), 0.0, 1000.0);
+  float _Kd = return_float_argument(args, arg_cnt, "-Kd", myPID.getKd(), 0.0, 100.0);
+  float _Kf = return_float_argument(args, arg_cnt, "-Kf", myPID.getKf(), 0.0, 100.0);
+  float _Kv = return_float_argument(args, arg_cnt, "-Kv", myPID.getKv(), 0.0, 100.0);
+  float _Kac = return_float_argument(args, arg_cnt, "-Kac", myPID.getKac(), 0.0, 100.0);
 
   Serial.println(" ");
   Serial.println("Setting new controller gains:");
   Serial.println("-----------------------------");
   Serial.print("Kp = ");
-  Serial.println(Kp);
+  Serial.println(_Kp);
   Serial.print("Ki = ");
-  Serial.println(Ki);
+  Serial.println(_Ki);
   Serial.print("Kd = ");
-  Serial.println(Kd);
+  Serial.println(_Kd);
   Serial.print("Kf = ");
-  Serial.println(Kf);
+  Serial.println(_Kf);
   Serial.print("Kv = ");
-  Serial.println(Kv);
+  Serial.println(_Kv);
   Serial.print("Kac = ");
-  Serial.println(Kac);
+  Serial.println(_Kac);
 
   myPID.disable();
-  myPID.setTunings(Kp, Ki, Kd, Kf, Kv, Kac);
+  myPID.setTunings(_Kp, _Ki, _Kd, _Kf, _Kv, _Kac);
   myPID.enable();
 }
 
@@ -80,7 +80,7 @@ void splineMovement(int arg_cnt, char **args) {
   accLimit = return_float_argument(args, arg_cnt, "-a", accLimit, 100, 50000);
 
   // calculate Target
-  steps = ((return_float_argument(args,  arg_cnt, "-r", r , -100000.0, 100000.0) * steps_per_revolution * microstepping) / 360.0  ) + 0.5;
+  steps = ((return_float_argument(args,  arg_cnt, "-r", r , -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0  ) + 0.5;
   mystepInterface.writesteps(steps);
 
 
@@ -333,25 +333,25 @@ void get_max_frequency(int arg_cnt, char **args) {
 void paramter_streamer (int arg_cnt, char **args) {
 
     Serial.print("steps_per_revolution = ");
-    Serial.println(steps_per_revolution);
+    Serial.println(Init_steps_per_revolution);
 
     Serial.print("microstepping = ");
-    Serial.println(microstepping);
+    Serial.println(Init_microstepping);
 
     Serial.print("iMAX = ");
-    Serial.println(iMAX);
+    Serial.println(Init_iMAX);
 
     Serial.print("M_max = ");
-    Serial.println(M_max);
+    Serial.println(Init_M_max);
 
     Serial.print("I_rated = ");
-    Serial.println(I_rated);
+    Serial.println(Init_I_rated);
 
     Serial.print("USE_ENABLE_PIN = ");
-    Serial.println(USE_ENABLE_PIN);
+    Serial.println(Init_USE_ENABLE_PIN);
 
     Serial.print("INVERT = ");
-    Serial.println(INVERT);
+    Serial.println(Init_INVERT);
 
 
 }

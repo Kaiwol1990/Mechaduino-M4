@@ -3,75 +3,66 @@
 #define __CONFIGURATION_H__
 
 
-#include <arduino.h>
-
+//#include <arduino.h>
 
 
 //---------------------------------------------- Hardware Section ----------------------------------------------
 //---------------------------------------------------------------------------------------------------------------
-
 // max current per coil 2000 mA for A4954 driver should be lower (thermal conditions)
-extern float iMAX;
+#define Init_iMAX 2000
 
-
-
-
-//uncomment this if you want to use a enable pin
-extern float USE_ENABLE_PIN;
+//set to 1 if you want to use a enable pin
+#define Init_USE_ENABLE_PIN 1
 
 // microstepping setting for step input
-extern float microstepping;
+#define Init_microstepping 32
 
 // fullsteps for 360 degrees
-extern float steps_per_revolution;
+#define Init_steps_per_revolution 200
 
 // mm per revolution
-//extern float mm_rev;
+#define Init_mm_rev 40
 
-// max error in mm, if the error gets bigger the led turns off
-//extern float error_led_value;
-
-//uncomment this to invert your motor direction
-extern bool INVERT;
-
+//set to 1 to invert your motor direction
+#define Init_INVERT 0
 
 
 
 //------------------------------------------------ Motor Section ------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------
-// max moment in Nm
-extern float M_max;
+// max torque in Ncm
+#define Init_M_max 45.0
 
 // rated current for max moment in mA
-extern float I_rated;
+#define Init_I_rated 2000.0
 
 
-//extern float velocity; // [deg/s]
+
+
 
 //--------------------------------------------- Thermostor Section ----------------------------------------------
 //---------------------------------------------------------------------------------------------------------------
-extern float beta;
+#define Init_beta 3950
+
 
 
 
 //---------------------------------------------- Controller Section ----------------------------------------------
 //---------------------------------------------------------------------------------------------------------------
+#define Init_Kp 3.175
+#define Init_Ki 29.18
+#define Init_Kd 0.0
 
-//---- PID Values position control -----
-extern float Kp;
-extern float Ki;
-extern float Kd;
-
-extern float Kf;
-extern float Kv;
-extern float Kac;
+#define Init_Kf 0.3
+#define Init_Kv 0.0
+#define Init_Kac 0.5
 
 
 
 //----------------------------------------------- Internal Section ----------------------------------------------
 //------------------------------------------------- don't change ------------------------------------------------
 // baudrate speed bit/s
-#define baudrate 200000000
+#define Init_baudrate 200000000
 
 #define firmware_version "0.4"
 

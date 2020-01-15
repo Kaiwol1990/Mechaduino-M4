@@ -4,7 +4,6 @@
 #define __UTIL_H__
 #include <arduino.h>
 
-void boot();
 
 void enaInterrupt();
 

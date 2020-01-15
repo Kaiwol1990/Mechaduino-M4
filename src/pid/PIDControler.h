@@ -30,9 +30,26 @@ class PIDControler {
 
     void tune(); 															// autotune the P,I,D gains
 
-    bool getState();
 
+// get and set functions
+    bool getState();
     float getError();
+
+    float getKp();
+    float getKi();
+    float getKd();
+    float getKf();
+    float getKv();
+    float getKac();
+    
+    void setKp(float _Kp);
+    void setKi(float _Ki);
+    void setKd(float _Kd);
+    void setKf(float _Kf);
+    void setKv(float _Kv);
+    void setKac(float _Kac);
+
+
 
 
     void enable();
@@ -46,12 +63,12 @@ class PIDControler {
     void reset();
 
 
-    float_t Kp;          // * (P)roportional Tuning Parameter
-    float_t Ki;          // * (I)ntegral Tuning Parameter
-    float_t Kd;          // * (D)erivative Tuning Parameter
-    float_t Kf;          // * (F)riction Tuning Parameter
-    float_t Kv; 				 // * (V)elocitiy feedforward gain
-    float_t Kac; 				 // * (AC)celeration feedforward gain
+    float_t myKp;          // * (P)roportional Tuning Parameter
+    float_t myKi;          // * (I)ntegral Tuning Parameter
+    float_t myKd;          // * (D)erivative Tuning Parameter
+    float_t myKf;          // * (F)riction Tuning Parameter
+    float_t myKv; 				 // * (V)elocitiy feedforward gain
+    float_t myKac; 				 // * (AC)celeration feedforward gain
 
 
     float_t kl;                 // anti windup LImit

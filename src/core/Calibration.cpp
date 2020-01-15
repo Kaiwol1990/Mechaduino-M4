@@ -13,8 +13,10 @@
 
 #include "modules/custommath.h"
 
+#include "Configuration.h"
+
 #define effort 30.0
-const float stepangle = (360.0 / (steps_per_revolution * microstepping));   // angle of one microstep as float
+const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping));   // angle of one microstep as float
 
 void calibration(int arg_cnt, char **args) {
 
@@ -56,7 +58,7 @@ void calibration(int arg_cnt, char **args) {
 
 
   for (int i = 0; i < 4; i++) {
-    currentAngle = currentAngle + (360.0 / steps_per_revolution);
+    currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
     for (int i = 0; i < 100; i++) {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
@@ -83,7 +85,7 @@ void calibration(int arg_cnt, char **args) {
 
 
   for (int i = 0; i < 4; i++) {
-    currentAngle = currentAngle - (360.0 / steps_per_revolution);
+    currentAngle = currentAngle - (360.0 / Init_steps_per_revolution);
     for (int i = 0; i < 100; i++) {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
@@ -97,10 +99,10 @@ void calibration(int arg_cnt, char **args) {
   Serial.println("Calibrating fullsteps");
   Serial.println(procent_bar);
   int counter = 0;
-  int count = steps_per_revolution / 50;
+  int count = Init_steps_per_revolution / 50;
   dir = true;
 
-  int16_t readings[(int)steps_per_revolution];
+  int16_t readings[(int)Init_steps_per_revolution];
 
   int temp_reading = myAS5047D.readDigits();
   int last_reading = temp_reading;
@@ -108,7 +110,7 @@ void calibration(int arg_cnt, char **args) {
 
   steps = 0;
   // step to every single fullstep position and read the Encoder
-  for (int i = 0; i < steps_per_revolution; i++) {
+  for (int i = 0; i < Init_steps_per_revolution; i++) {
 
     
 
@@ -153,7 +155,7 @@ void calibration(int arg_cnt, char **args) {
     }
 
     // increment angle one step
-    currentAngle = currentAngle + (360.0 / steps_per_revolution);
+    currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
     for (int i = 0; i < 100; i++) {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
@@ -193,10 +195,10 @@ void calibration(int arg_cnt, char **args) {
 
   Serial.println("");
   Serial.print("int16_t fullsteps[] ={");
-  for (int i = 0; i < steps_per_revolution; i++) {
+  for (int i = 0; i < Init_steps_per_revolution; i++) {
     Serial.print(readings[i]);
 
-    if (i < steps_per_revolution - 1) {
+    if (i < Init_steps_per_revolution - 1) {
       if ((mod(i, 25) == 0) & (i > 0)) {
         Serial.println(",");
       }
