@@ -27,8 +27,4 @@ String return_char_argument(char **args, uint8_t arg_cnt, const char *identifier
 
 bool check_argument(char **args, uint8_t arg_cnt, const char *identifier);
 
-void insert_command(const char *command_string);
-
-//bool userqst(int timeout, const String qst_string);
-
 #endif //CMD_H
