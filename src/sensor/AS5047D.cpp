@@ -83,7 +83,6 @@ void AS5047D::readAngle() {
   // get angle from lookuptable
   raw = lookuptable[data];
 
-  //raw = (data * 0.02197265625) - Offset; // Offset;
 
 
   // calculate and wrap new angle
@@ -355,9 +354,6 @@ void AS5047D::initTable(int16_t *fullsteps) {
 // PRIVATE METHODS  * * * * * * * * * * * * * * * * * * * *
 
 
-void AS5047D::setOffset(float Offset_) {
-  Offset = Offset_;
-}
 
 
 inline uint16_t AS5047D::getParity(uint16_t payload, uint8_t bitcount) {

@@ -37,7 +37,6 @@ class AS5047D {
 
     EPortType port;
     uint32_t pin;
-    float Offset;// = 41.44;
 
 
     // private valriables

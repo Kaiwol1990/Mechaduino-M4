@@ -21,23 +21,25 @@
 
 void boot() {
 
+  // FIXME
+  // Load from eeprom instead of init hardcoded values if possible
+
+
   Serial.begin(Init_baudrate);
 
-  delay(3000);
+  delay(500);
 
+  Serial.println(" ");
+  Serial.println(" ");
   Serial.print("setup pins:");
   setupPins();
   Serial.println(" OK");
 
+
   Serial.print("setup AS5047:");
-  // Calculating the lookuptable at startup.
   myAS5047D.init(fullsteps);
   myAS5047D.readDIAAGC();
   myAS5047D.readERRFL();
-  //myAS5047D.setOffset(-98.85);
-  //  Serial.print("setup lookup:");
-  //  calculateLookup(fullsteps);
-  //  Serial.println(" OK");
   Serial.println(" OK");
 
 
@@ -51,9 +53,6 @@ void boot() {
   mystepInterface.setup();
   Serial.println(" OK");
 
-  Serial.print("setup SPI:");
-  // setupSPI();
-  Serial.println(" OK");
 
   Serial.print("setup Interrupts:");
   setupTCInterrupts();
@@ -68,15 +67,9 @@ void boot() {
   }
   Serial.println(" OK");
 
-  Serial.print("setup direction pin:");
-  //dirInterrupt();
-  Serial.println(" OK");
-
 
   Serial.print("setup PID Controller:");
   myPID.setSampleFreq(FPID);
-  // FIXME
-  // Load from eeprom instead of init hardcoded values if possible
   myPID.setTunings(Init_Kp, Init_Ki, Init_Kd, Init_Kf, Init_Kv, Init_Kac);
   myPID.setLimit(Init_M_max);
   myPID.setIntegrationalLimit(Init_M_max * 0.8);
@@ -87,15 +80,6 @@ void boot() {
   enableTC5Interrupts();
   Serial.println(" OK");
 
-
-
-
-  Serial.print("generating filter variables:");
-  filter_y.init();
-  omegaFilter.init();
-  Serial.println(" OK");
-
-  cmdInit(&Serial);
 
   Serial.println(bootscreen_1);
   Serial.println(bootscreen_2);
@@ -114,11 +98,12 @@ void boot() {
   Serial.print("   firmware-version: ");
   Serial.println(firmware_version);
 
+  init_menu();
+  cmdInit(&Serial);
 
   Serial.println("");
   Serial.print("CMD >> ");
   
-  init_menu();
 }
 
 
