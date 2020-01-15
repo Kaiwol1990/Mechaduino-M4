@@ -17,13 +17,11 @@
 
 #include "language/en.h"
 
-
-
-void boot() {
+void boot()
+{
 
   // FIXME
   // Load from eeprom instead of init hardcoded values if possible
-
 
   Serial.begin(Init_baudrate);
 
@@ -35,13 +33,11 @@ void boot() {
   setupPins();
   Serial.println(" OK");
 
-
   Serial.print("setup AS5047:");
   myAS5047D.init(fullsteps);
   myAS5047D.readDIAAGC();
   myAS5047D.readERRFL();
   Serial.println(" OK");
-
 
   Serial.print("setup A4954:");
   myA4954.init();
@@ -53,20 +49,20 @@ void boot() {
   mystepInterface.setup();
   Serial.println(" OK");
 
-
   Serial.print("setup Interrupts:");
   setupTCInterrupts();
   Serial.println(" OK");
 
-  if (Init_USE_ENABLE_PIN) {
+  if (Init_USE_ENABLE_PIN)
+  {
     Serial.print("setup enable pin:");
     enaInterrupt();
   }
-  else {
+  else
+  {
     myPID.enable();
   }
   Serial.println(" OK");
-
 
   Serial.print("setup PID Controller:");
   myPID.setSampleFreq(FPID);
@@ -75,11 +71,9 @@ void boot() {
   myPID.setIntegrationalLimit(Init_M_max * 0.8);
   Serial.println(" OK");
 
-
   Serial.print("setup controller:");
   enableTC5Interrupts();
   Serial.println(" OK");
-
 
   Serial.println(bootscreen_1);
   Serial.println(bootscreen_2);
@@ -103,10 +97,4 @@ void boot() {
 
   Serial.println("");
   Serial.print("CMD >> ");
-  
 }
-
-
-
-
-

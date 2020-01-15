@@ -4,10 +4,8 @@
 #define __UTIL_H__
 #include <arduino.h>
 
-
 void enaInterrupt();
 
 int measure_noise();
-
 
 #endif

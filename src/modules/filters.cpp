@@ -18,70 +18,82 @@
 
 #include "filters.h"
 
-
 // CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
 
-Filter::Filter(float hz_, float ts_) :
-  ts( ts_ ),
-  hz( hz_ )
+Filter::Filter(float hz_, float ts_) : ts(ts_),
+                                       hz(hz_)
 {
   init();
 }
 
-Filter::~Filter() { }
+Filter::~Filter() {}
 
 // PUBLIC METHODS * * * * * * * * * * * * * * * * * * * * *
 
-void Filter::init(bool doFlush) {
-  if (doFlush) flush();
-
+void Filter::init(bool doFlush)
+{
+  if (doFlush)
+    flush();
 
   initLowPass();
-
 }
 
-float_t Filter::filterIn(float input) {
+float_t Filter::filterIn(float input)
+{
 
   return computeLowPass(input);
-
 }
 
-void Filter::flush() {
-  for (uint8_t i = 0; i < 2; i++) {
+void Filter::flush()
+{
+  for (uint8_t i = 0; i < 2; i++)
+  {
     x[i] = 0.0;
     y[i] = 0.0;
   }
 }
 
-void Filter::dumpParams() {
+void Filter::dumpParams()
+{
   uint8_t p = 6;
   Serial.println("Filter parameters:");
-  Serial.print("ts\t= "); Serial.println(ts, p);
-  Serial.print("hz\t= "); Serial.println(hz, p);
+  Serial.print("ts\t= ");
+  Serial.println(ts, p);
+  Serial.print("hz\t= ");
+  Serial.println(hz, p);
 
-  Serial.print("a0\t= ");  Serial.println(a0, p);
-  Serial.print("a1\t= ");  Serial.println(a1, p);
-  Serial.print("a2\t= ");  Serial.println(a2, p);
-  Serial.print("b0\t= ");  Serial.println(b0, p);
-  Serial.print("b1\t= ");  Serial.println(b1, p);
-  Serial.print("b2\t= ");  Serial.println(b2, p);
+  Serial.print("a0\t= ");
+  Serial.println(a0, p);
+  Serial.print("a1\t= ");
+  Serial.println(a1, p);
+  Serial.print("a2\t= ");
+  Serial.println(a2, p);
+  Serial.print("b0\t= ");
+  Serial.println(b0, p);
+  Serial.print("b1\t= ");
+  Serial.println(b1, p);
+  Serial.print("b2\t= ");
+  Serial.println(b2, p);
 }
 
 // PRIVATE METHODS  * * * * * * * * * * * * * * * * * * * *
 
-inline float_t Filter::computeLowPass(float input) {
-  for (uint8_t i = 2; i > 0; i--) {
+inline float_t Filter::computeLowPass(float input)
+{
+  for (uint8_t i = 2; i > 0; i--)
+  {
     y[i] = y[i - 1];
     x[i] = x[i - 1];
   }
   x[0] = input;
-  
-  y[0] =  (b0 * x[0]) + (b1 * x[1]) + (b2 * x[2]) + (a1 * y[1]) + (a2 * y[2]);
+
+  y[0] = (b0 * x[0]) + (b1 * x[1]) + (b2 * x[2]) + (a1 * y[1]) + (a2 * y[2]);
 
   return y[0];
 }
 
-inline void  Filter::initLowPass() {
+inline void Filter::initLowPass()
+{
   // Normalisieren der Cutoff-Frequenz
   FCutoff = hz / (ts / 1.0);
 

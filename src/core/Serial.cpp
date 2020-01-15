@@ -16,7 +16,8 @@
 
 #include "modules/custommath.h"
 
-void init_menu() {
+void init_menu()
+{
 
   cmdAdd(help_command, Serial_menu);
   cmdAdd(calibrate_command, calibration);
@@ -30,11 +31,10 @@ void init_menu() {
   cmdAdd("spline", splineMovement);
   cmdAdd("pos", reportPostition);
   cmdAdd("para", paramter_streamer);
-
 }
 
-
-void reportPostition(int arg_cnt, char **args) {
+void reportPostition(int arg_cnt, char **args)
+{
   Serial.print("Target = ");
   Serial.print(r);
   Serial.print(", ");
@@ -42,9 +42,8 @@ void reportPostition(int arg_cnt, char **args) {
   Serial.println(y);
 }
 
-
-void set_gains(int arg_cnt, char **args) {
-
+void set_gains(int arg_cnt, char **args)
+{
 
   float _Kp = return_float_argument(args, arg_cnt, "-Kp", myPID.getKp(), 0.0, 100.0);
   float _Ki = return_float_argument(args, arg_cnt, "-Ki", myPID.getKi(), 0.0, 1000.0);
@@ -74,72 +73,70 @@ void set_gains(int arg_cnt, char **args) {
   myPID.enable();
 }
 
-void splineMovement(int arg_cnt, char **args) {
+void splineMovement(int arg_cnt, char **args)
+{
   // check for given velocity
   velLimit = return_float_argument(args, arg_cnt, "-v", velLimit, 100, 5000);
   accLimit = return_float_argument(args, arg_cnt, "-a", accLimit, 100, 50000);
 
   // calculate Target
-  steps = ((return_float_argument(args,  arg_cnt, "-r", r , -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0  ) + 0.5;
+  steps = ((return_float_argument(args, arg_cnt, "-r", r, -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0) + 0.5;
   mystepInterface.writesteps(steps);
-
-
 }
 
-
-void set_motion(int arg_cnt, char **args) {
+void set_motion(int arg_cnt, char **args)
+{
   float velLimit_temp = return_float_argument(args, arg_cnt, "-v", velLimit, 1, 1000000);
   float accLimit_temp = return_float_argument(args, arg_cnt, "-acc", accLimit, 1, 1000000);
   velLimit = velLimit_temp;
   accLimit = accLimit_temp;
 }
 
-
-void state(int arg_cnt, char **args) {
+void state(int arg_cnt, char **args)
+{
   Serial.println(state_header);
 
-  if (check_argument(args,  arg_cnt, "-off")) {
+  if (check_argument(args, arg_cnt, "-off"))
+  {
     Serial.println("disabling");
     myPID.disable();
   }
-  if (check_argument(args,  arg_cnt, "-on")) {
+  if (check_argument(args, arg_cnt, "-on"))
+  {
     Serial.println("enabling");
     myPID.enable();
   }
 
   Serial.print(" Motor state = ");
   Serial.println(myPID.getState());
-
-
 }
 
-
-
-void SoftReset(int arg_cnt, char **args) {
+void SoftReset(int arg_cnt, char **args)
+{
   Serial.println(reset_header);
-  NVIC_SystemReset();      // processor software reset
+  NVIC_SystemReset(); // processor software reset
 }
 
-
-void set_TC(int arg_cnt, char **args) {
+void set_TC(int arg_cnt, char **args)
+{
   Serial.println(interrupt_header);
 
   bool TC5_bool = return_bool_argument(args, arg_cnt, "-TC5", true);
 
-  if (TC5_bool) {
+  if (TC5_bool)
+  {
     Serial.println("TC5 enabled!");
     enableTC5Interrupts();
   }
-  else {
+  else
+  {
     Serial.println("TC5 disabled!");
     disableTC5Interrupts();
   }
-
-
 }
 
-
-void Serial_menu(int arg_cnt, char **args) {
+void Serial_menu(int arg_cnt, char **args)
+{
 
   Serial.println(help_header);
   Serial.println(help_command " - " help_menu);
@@ -156,38 +153,30 @@ void Serial_menu(int arg_cnt, char **args) {
   Serial.println(downhill_command " - " downhill_menu);
   Serial.println(test_command " - " test_menu);
   Serial.println(interrupt_command " - " interrupt_menu);
-
 }
 
-
-
-
-
-void step_response(int arg_cnt, char **args) {
+void step_response(int arg_cnt, char **args)
+{
   Serial.println(step_response_header);
 
   int response_steps = return_float_argument(args, arg_cnt, "-s", 1000, 1, 10000);
-  
+
   // check for given velocity
   velLimit = return_float_argument(args, arg_cnt, "-v", velLimit, 100, 5000);
   accLimit = return_float_argument(args, arg_cnt, "-a", accLimit, 100, 50000);
 
-
-  int  frequency = 5000;
+  int frequency = 5000;
 
   Serial.print("Steps = ");
   Serial.println(response_steps);
   Serial.print("Frequency = ");
   Serial.println(frequency);
 
-
   bool last_dir = dir;
-
 
   float answer[2000];
   float target[2000];
   float effort[2000];
-
 
   int counter = 0;
 
@@ -196,14 +185,15 @@ void step_response(int arg_cnt, char **args) {
 
   float dt = 1000000.0 / (float)frequency;
 
-
   // calculate the target vector
   target[0] = mystepInterface.getsteps();
-  for (int i = 1; i < 2000; i++) {
+  for (int i = 1; i < 2000; i++)
+  {
     target[i] = target[i - 1];
 
-    if (i == 200) {
-      target[i] = target[i - 1]  + response_steps;
+    if (i == 200)
+    {
+      target[i] = target[i - 1] + response_steps;
     }
   }
 
@@ -212,10 +202,12 @@ void step_response(int arg_cnt, char **args) {
   myPID.enable();
   mystepInterface.writesteps(target[0]);
   delay(2000);
-  while (counter < 2000) {
+  while (counter < 2000)
+  {
     current_time = micros();
 
-    if (current_time >= next_time) {
+    if (current_time >= next_time)
+    {
       next_time = current_time + dt;
 
       answer[counter] = myAS5047D.getAngle();
@@ -235,7 +227,8 @@ void step_response(int arg_cnt, char **args) {
   */
 
   Serial.println("time;target;anlge;effort");
-  for (int i = 0; i < 2000; i++) {
+  for (int i = 0; i < 2000; i++)
+  {
     Serial.print((float)((float)i * (float)dt / 1000000.0), 5);
     Serial.print(';');
     Serial.print(target[i], 5);
@@ -243,7 +236,6 @@ void step_response(int arg_cnt, char **args) {
     Serial.print(answer[i], 5);
     Serial.print(';');
     Serial.println(effort[i], 5);
-
   }
 
   /*
@@ -264,20 +256,8 @@ void step_response(int arg_cnt, char **args) {
   dir = last_dir;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-void get_max_frequency(int arg_cnt, char **args) {
+void get_max_frequency(int arg_cnt, char **args)
+{
   disableTC5Interrupts();
 
   uint32_t max_counter = 10000;
@@ -287,71 +267,64 @@ void get_max_frequency(int arg_cnt, char **args) {
 
   uint32_t starting_test = micros();
 
-  for (uint8_t k = 0; k < 10; k++) {
+  for (uint8_t k = 0; k < 10; k++)
+  {
 
     uint32_t starting = micros();
 
-    for (uint32_t i = 0; i < max_counter; i++) {
+    for (uint32_t i = 0; i < max_counter; i++)
+    {
       ControlerLoop();
     }
 
     frequency[k] = 1000000.0 / ((float)(micros() - starting) / (float)max_counter);
 
-
     Serial.print("loop : ");
     Serial.print(k);
     Serial.print(" / 10 frequency [Hz] = ");
     Serial.println(frequency[k]);
-
   }
 
   myPID.disable();
-  
+
   float mean = 0.0;
-  for (uint8_t k = 0; k < 10; k++) {
+  for (uint8_t k = 0; k < 10; k++)
+  {
     mean += frequency[k];
   }
-  mean = mean/10.0;
+  mean = mean / 10.0;
 
-  
   Serial.print("Mean frequency [Hz] = ");
   Serial.println(mean);
   Serial.print("execution time = ");
-  Serial.println(1000000.0/mean);
-  
+  Serial.println(1000000.0 / mean);
 
   Serial.print("Overalltime [s] = ");
   Serial.println((float)(micros() - starting_test) / 1000000.0);
   enableTC5Interrupts();
 }
 
+void paramter_streamer(int arg_cnt, char **args)
+{
 
+  Serial.print("steps_per_revolution = ");
+  Serial.println(Init_steps_per_revolution);
 
+  Serial.print("microstepping = ");
+  Serial.println(Init_microstepping);
 
+  Serial.print("iMAX = ");
+  Serial.println(Init_iMAX);
 
+  Serial.print("M_max = ");
+  Serial.println(Init_M_max);
 
-void paramter_streamer (int arg_cnt, char **args) {
+  Serial.print("I_rated = ");
+  Serial.println(Init_I_rated);
 
-    Serial.print("steps_per_revolution = ");
-    Serial.println(Init_steps_per_revolution);
+  Serial.print("USE_ENABLE_PIN = ");
+  Serial.println(Init_USE_ENABLE_PIN);
 
-    Serial.print("microstepping = ");
-    Serial.println(Init_microstepping);
-
-    Serial.print("iMAX = ");
-    Serial.println(Init_iMAX);
-
-    Serial.print("M_max = ");
-    Serial.println(Init_M_max);
-
-    Serial.print("I_rated = ");
-    Serial.println(Init_I_rated);
-
-    Serial.print("USE_ENABLE_PIN = ");
-    Serial.println(Init_USE_ENABLE_PIN);
-
-    Serial.print("INVERT = ");
-    Serial.println(Init_INVERT);
-
-
+  Serial.print("INVERT = ");
+  Serial.println(Init_INVERT);
 }

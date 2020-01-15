@@ -14,5 +14,4 @@ float sign(float input);
 
 float splineInterpolate(float input);
 
-
 #endif

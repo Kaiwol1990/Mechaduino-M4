@@ -13,31 +13,29 @@
 #include "modules/filters.h"
 #include "SAMD51/stepInterface.h"
 
-
 //---- interrupt vars ----
 
-extern  float r;        //target angle
-extern  float y;        //current angle
-extern  int32_t steps;  //target step
+extern float r;       //target angle
+extern float y;       //current angle
+extern int32_t steps; //target step
 
 extern float velLimit;
 extern float accLimit;
 
-extern  float error;      //error angle
+extern float error; //error angle
 
-extern  float u;            // control effort
+extern float u; // control effort
 
-extern  float electric_angle;
+extern float electric_angle;
 
-extern  bool dir;         // flag for  dir setting
+extern bool dir; // flag for  dir setting
 //extern  bool enabled;     // flag for  enabled setting
-
-
 
 //---- lookup table for the encoder reading ----
 extern int16_t fullsteps[200];
 
 extern AS5047D myAS5047D;
+
 extern A4954 myA4954;
 
 extern PIDControler myPID;

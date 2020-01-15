@@ -1,10 +1,7 @@
 #ifndef __Serial_H__
 #define __Serial_H__
 
-
 #include <arduino.h>
-
-
 
 void init_menu();
 

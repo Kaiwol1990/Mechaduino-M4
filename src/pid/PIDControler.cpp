@@ -6,15 +6,13 @@
 #define M_Pi 3.141592653589793115997963
 
 // CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
-PIDControler::PIDControler(float_t* Input_,  float_t* Output_, float_t* Setpoint_)
+PIDControler::PIDControler(float_t *Input_, float_t *Output_, float_t *Setpoint_)
 {
   Input = Input_;
   Output = Output_;
   Setpoint = Setpoint_;
 
-
   OutputLimit = 10000000000000000.0;
-
 
   // calc Lookuptable
   PIDControler::calcLookup();
@@ -23,9 +21,8 @@ PIDControler::PIDControler(float_t* Input_,  float_t* Output_, float_t* Setpoint
   PIDControler::disable();
 }
 
-
-
-void PIDControler::compute() {
+void PIDControler::compute()
+{
 
   // local variables * * * * * * * * * * * * * * * * * * * * *
   float_t Velocity;
@@ -36,9 +33,6 @@ void PIDControler::compute() {
   float_t LocalInput;
   float_t LocalSetpoint;
 
-
-
-
   // evaluate Inputs * * * * * * * * * * * * * * * * * * * * *
   LocalSetpoint = *Setpoint;
   LocalInput = *Input;
@@ -47,36 +41,35 @@ void PIDControler::compute() {
   Acceleration = (Velocity - lastVelocity) * sampleTime;
   Jerk = (Acceleration - lastAcceleration) * sampleTime;
 
-
-
   dInput = LocalInput - lastInput;
 
   error = LocalSetpoint - LocalInput;
-
-
 
   // PID Terms * * * * * * * * * * * * * * * * * * * * *
 
   // Integral Term
   IntegrationalTerm += (myKi * error);
 
-  if (IntegrationalTerm > IntegrationLimit) {
+  if (IntegrationalTerm > IntegrationLimit)
+  {
     IntegrationalTerm = IntegrationLimit;
   }
-  else if (IntegrationalTerm < -IntegrationLimit) {
+  else if (IntegrationalTerm < -IntegrationLimit)
+  {
     IntegrationalTerm = -IntegrationLimit;
   }
 
   // compute output
-  localOutput = (myKp * error) + IntegrationalTerm + (myKd * dInput) + (myKf * Jerk) + (myKv * Velocity) + (myKac * Acceleration);// + antiCoggingK;
+  localOutput = (myKp * error) + IntegrationalTerm + (myKd * dInput) + (myKf * Jerk) + (myKv * Velocity) + (myKac * Acceleration); // + antiCoggingK;
 
-  if (localOutput > OutputLimit) {
+  if (localOutput > OutputLimit)
+  {
     localOutput = OutputLimit;
   }
-  else if (localOutput < -OutputLimit) {
+  else if (localOutput < -OutputLimit)
+  {
     localOutput = -OutputLimit;
   }
-
 
   // save Setpoint
   lastSetpoint = LocalSetpoint;
@@ -86,30 +79,29 @@ void PIDControler::compute() {
 
   // write output
 
-  if (PIDenabled) {
+  if (PIDenabled)
+  {
     *Output = localOutput;
   }
-  else {
+  else
+  {
     PIDControler::disable();
     *Output = 0;
   }
-
 }
 
-void PIDControler::setIntegrationalLimit(float_t Limit_) {
+void PIDControler::setIntegrationalLimit(float_t Limit_)
+{
   IntegrationLimit = Limit_;
 }
 
-
-void PIDControler::setLimit(float_t Limit_) {
+void PIDControler::setLimit(float_t Limit_)
+{
   OutputLimit = Limit_;
 }
 
-
-
-
-
-void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_) {
+void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_)
+{
 
   // scale Gains with Sampletime
   PIDControler::setKp(Kp_);
@@ -117,15 +109,13 @@ void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_) {
   PIDControler::setKd(Kd_);
 }
 
-
-
-void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_, float_t Kf_, float_t Kv_, float_t Kac_) {
+void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_, float_t Kf_, float_t Kv_, float_t Kac_)
+{
 
   // scale Gains with Sampletime
   PIDControler::setKp(Kp_);
   PIDControler::setKi(Ki_);
   PIDControler::setKd(Kd_);
-
 
   // advanced parameters
   PIDControler::setKf(Kf_);
@@ -133,88 +123,99 @@ void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_, float_t Kf_
   PIDControler::setKac(Kac_);
 }
 
-
-bool PIDControler::getState() {
+bool PIDControler::getState()
+{
   return PIDenabled;
 }
 
-
-
-void PIDControler::setSampleFreq(uint16_t freq_) {
+void PIDControler::setSampleFreq(uint16_t freq_)
+{
 
   sampleFreq = freq_;
   sampleTime = 1.0 / (float_t)(freq_);
-
 }
 
-
-float PIDControler::getError() {
+float PIDControler::getError()
+{
   return error;
 }
 
-float PIDControler::getKp(){
+float PIDControler::getKp()
+{
   return myKp;
 }
 
-float PIDControler::getKi(){
+float PIDControler::getKi()
+{
   return myKi / sampleTime;
 }
 
-float PIDControler::getKd(){
+float PIDControler::getKd()
+{
   return myKd * sampleTime;
 }
 
-float PIDControler::getKf(){
+float PIDControler::getKf()
+{
   return myKf;
 }
 
-float PIDControler::getKv(){
+float PIDControler::getKv()
+{
   return myKv;
 }
 
-float PIDControler::getKac(){
+float PIDControler::getKac()
+{
   return myKac;
 }
 
-void PIDControler::setKp(float _Kp){
+void PIDControler::setKp(float _Kp)
+{
   myKp = _Kp;
 }
 
-void PIDControler::setKi(float _Ki){
+void PIDControler::setKi(float _Ki)
+{
   myKi = _Ki * sampleTime;
 }
 
-void PIDControler::setKd(float _Kd){
+void PIDControler::setKd(float _Kd)
+{
   myKd = _Kd / sampleTime;
 }
 
-void PIDControler::setKf(float _Kf){
+void PIDControler::setKf(float _Kf)
+{
   myKf = _Kf;
 }
 
-void PIDControler::setKv(float _Kv){
+void PIDControler::setKv(float _Kv)
+{
   myKv = _Kv;
 }
 
-void PIDControler::setKac(float _Kac){
+void PIDControler::setKac(float _Kac)
+{
   myKac = _Kac;
 }
 
-
-
-void PIDControler::setState(bool enabled_) {
-  if (enabled_) {
+void PIDControler::setState(bool enabled_)
+{
+  if (enabled_)
+  {
     PIDControler::enable();
   }
-  else {
+  else
+  {
     PIDControler::disable();
   }
 }
 
-
-
-void PIDControler::enable() {
-  if (!PIDenabled) {
+void PIDControler::enable()
+{
+  if (!PIDenabled)
+  {
     PIDenabled = true;
 
     // Reset
@@ -222,9 +223,10 @@ void PIDControler::enable() {
   }
 }
 
-
-void PIDControler::disable() {
-  if (PIDenabled) {
+void PIDControler::disable()
+{
+  if (PIDenabled)
+  {
     PIDenabled = false;
 
     // Reset
@@ -232,20 +234,19 @@ void PIDControler::disable() {
   }
 }
 
-void PIDControler::reset() {
+void PIDControler::reset()
+{
   IntegrationalTerm = 0;
   localOutput = 0;
-
 }
 
-
-void PIDControler::calcLookup() {
-  for (uint16_t i = 0; i < 200; i++) {
+void PIDControler::calcLookup()
+{
+  for (uint16_t i = 0; i < 200; i++)
+  {
     tanhTable[i] = tanh(((double)(i - 100.0) / 100.0) * M_Pi);
   }
 }
-
-
 
 /*
 void PIDControler::anticogging() {
@@ -333,4 +334,3 @@ void PIDControler::anticogging() {
 
 }
 */
-

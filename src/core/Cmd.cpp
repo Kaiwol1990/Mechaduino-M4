@@ -13,10 +13,7 @@ static cmd_t *cmd_tbl_list, *cmd_tbl;
 const char cmd_prompt[] = "CMD >> ";
 const char cmd_unrecog[] = "CMD: Command not recognized.";
 
-static Stream* stream;
-
-
-
+static Stream *stream;
 
 //Generate the main command prompt
 void cmd_display()
@@ -87,37 +84,36 @@ void cmd_handler(char c)
 {
   switch (c)
   {
-    case '\r':
-      // terminate the msg and reset the msg ptr. then send
-      // it to the handler for processing.
-      *msg_ptr = '\0';
-      stream->print("\r\n");
-      cmd_parse((char *)msg);
-      msg_ptr = msg;
-      break;
+  case '\r':
+    // terminate the msg and reset the msg ptr. then send
+    // it to the handler for processing.
+    *msg_ptr = '\0';
+    stream->print("\r\n");
+    cmd_parse((char *)msg);
+    msg_ptr = msg;
+    break;
 
-    case '\n':
-      // ignore newline characters. they usually come in pairs
-      // with the \r characters we use for newline detection.
-      break;
+  case '\n':
+    // ignore newline characters. they usually come in pairs
+    // with the \r characters we use for newline detection.
+    break;
 
-    case '\b':
-      // backspace
-      stream->print(c);
-      if (msg_ptr > msg)
-      {
-        msg_ptr--;
-      }
-      break;
+  case '\b':
+    // backspace
+    stream->print(c);
+    if (msg_ptr > msg)
+    {
+      msg_ptr--;
+    }
+    break;
 
-    default:
-      // normal character entered. add it to the buffer
-      stream->print(c);
-      *msg_ptr++ = c;
-      break;
+  default:
+    // normal character entered. add it to the buffer
+    stream->print(c);
+    *msg_ptr++ = c;
+    break;
   }
 }
-
 
 // if Serial available parse it to handler
 void cmdPoll()
@@ -128,7 +124,6 @@ void cmdPoll()
   }
 }
 
-
 // Initialize the command line interface
 void cmdInit(Stream *str)
 {
@@ -138,7 +133,6 @@ void cmdInit(Stream *str)
 
   // init the command table
   cmd_tbl_list = NULL;
-
 }
 
 //Add a command to the command table.
@@ -163,16 +157,16 @@ void cmdAdd(const char *name, void (*func)(int argc, char **argv))
   cmd_tbl_list = cmd_tbl;
 }
 
-
-
-
 // Checks if a argument was called and returns the integer after it
-int32_t return_integer_argument(char **args, uint8_t arg_cnt, const char *identifier, int32_t default_value, int32_t min_value, int32_t max_value) {
+int32_t return_integer_argument(char **args, uint8_t arg_cnt, const char *identifier, int32_t default_value, int32_t min_value, int32_t max_value)
+{
 
   int32_t val = default_value;
-  for ( uint8_t i = 1; i < arg_cnt; i++) {
+  for (uint8_t i = 1; i < arg_cnt; i++)
+  {
     String argument = args[i];
-    if (argument == identifier) {
+    if (argument == identifier)
+    {
       val = strtol(args[i + 1], NULL, 10);
     }
   }
@@ -181,81 +175,84 @@ int32_t return_integer_argument(char **args, uint8_t arg_cnt, const char *identi
   return val;
 }
 
-
 //Checks if a argument was called and returns the float after it
-float return_float_argument(char **args, uint8_t arg_cnt, const char *identifier, float default_value, float min_value, float max_value) {
+float return_float_argument(char **args, uint8_t arg_cnt, const char *identifier, float default_value, float min_value, float max_value)
+{
 
   float val = default_value;
-  for ( byte i = 1; i < arg_cnt; i++) {
+  for (byte i = 1; i < arg_cnt; i++)
+  {
     String argument = args[i];
-    if (argument == identifier) {
+    if (argument == identifier)
+    {
 
       val = strtof(args[i + 1], NULL);
     }
   }
 
-  if (val > max_value) {
+  if (val > max_value)
+  {
     val = max_value;
   }
-  else if (val < min_value) {
+  else if (val < min_value)
+  {
     val = min_value;
   }
- // val = constrain(100 * val, 100 * min_value, 100 * max_value) / 100.0;
+  // val = constrain(100 * val, 100 * min_value, 100 * max_value) / 100.0;
   return val;
 }
 
-
 //Checks if a argument was called and returns the char value after it
-String return_char_argument(char **args, uint8_t arg_cnt, const char *identifier, const String default_value) {
+String return_char_argument(char **args, uint8_t arg_cnt, const char *identifier, const String default_value)
+{
 
   String val = default_value;
-  for ( byte i = 1; i < arg_cnt; i++) {
+  for (byte i = 1; i < arg_cnt; i++)
+  {
     String argument = args[i];
-    if (argument == identifier) {
+    if (argument == identifier)
+    {
       val = args[i + 1];
     }
   }
   return val;
 }
 
-
-
-
-
 //Checks if a argument was called and returns the boolean value after it
-bool return_bool_argument(char **args, uint8_t arg_cnt, const char *identifier, bool default_value) {
+bool return_bool_argument(char **args, uint8_t arg_cnt, const char *identifier, bool default_value)
+{
 
   bool val = default_value;
-  for ( byte i = 1; i < arg_cnt; i++) {
+  for (byte i = 1; i < arg_cnt; i++)
+  {
     String argument = args[i];
-    if (argument == identifier) {
+    if (argument == identifier)
+    {
       val = strtof(args[i + 1], NULL);
     }
   }
   //val = constrain(val, 0, 1);
   return val;
-
 }
 
-
-
 //Checks if a argument was called and returns true if the argument was found
-bool check_argument(char **args, uint8_t arg_cnt, const char *identifier) {
+bool check_argument(char **args, uint8_t arg_cnt, const char *identifier)
+{
 
-  for ( byte i = 1; i < arg_cnt; i++) {
+  for (byte i = 1; i < arg_cnt; i++)
+  {
     String argument = args[i];
-    if (argument == identifier) {
+    if (argument == identifier)
+    {
       return true;
     }
   }
   return false;
-
 }
 
-
-
 //Insert a command to the Serial buffer
-void insert_command(const char* command_string) {
+void insert_command(const char *command_string)
+{
 
   char buf[30];
 
@@ -263,15 +260,15 @@ void insert_command(const char* command_string) {
   strcpy(buf, command_string);
 
   uint8_t msg_length = 0;
-  while ((msg_length < 30) && buf[msg_length] != NULL) {
-    cmd_handler( buf[msg_length]);
+  while ((msg_length < 30) && buf[msg_length] != NULL)
+  {
+    cmd_handler(buf[msg_length]);
     msg_length++;
   }
 
   // attache carridge return to the end of the command
   cmd_handler(' ');
   cmd_handler('\r');
-
 }
 
 /*

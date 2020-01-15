@@ -8,28 +8,21 @@
 //---- interrupt vars ----
 volatile byte mode = 0;
 
- float r = 0;  //target angle
- float y = 0;  //current angle
- int32_t steps = 0;  //target step
+float r = 0;       //target angle
+float y = 0;       //current angle
+int32_t steps = 0; //target step
 
- float velLimit = 900.0;
- float accLimit = 10000.0;
- 
- float error = 0;  //error angle
+float velLimit = 900.0;
+float accLimit = 10000.0;
 
- float u = 0;   // control effort
+float error = 0; //error angle
 
- float electric_angle = 0;
+float u = 0; // control effort
 
+float electric_angle = 0;
 
- bool dir = true;             // flag for dir setting
- //bool enabled = true;         // flag for enabled setting
-
-
-
-
-
-
+bool dir = true; // flag for dir setting
+                 //bool enabled = true;         // flag for enabled setting
 
 AS5047D myAS5047D(Init_steps_per_revolution, &Serial, PORTA, 15);
 A4954 myA4954(Init_steps_per_revolution, 18, 19, 21, 20, 2, 5);

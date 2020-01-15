@@ -16,9 +16,10 @@
 #include "Configuration.h"
 
 #define effort 30.0
-const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping));   // angle of one microstep as float
+const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
 
-void calibration(int arg_cnt, char **args) {
+void calibration(int arg_cnt, char **args)
+{
 
   //float calibCurrent = 700.0;
   float currentAngle = 0.0;
@@ -26,7 +27,6 @@ void calibration(int arg_cnt, char **args) {
 
   disableTC5Interrupts();
   myPID.disable();
-
 
   int avg = 100;
   //bool debug = check_argument(args, arg_cnt, "-debug");
@@ -46,30 +46,29 @@ void calibration(int arg_cnt, char **args) {
   myA4954.output(0, effort);
   delay(100);
 
-
   float encoderReading = 0;
 
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     encoderReading = encoderReading + myAS5047D.readDigits();
     delayMicroseconds(250);
   }
   encoderReading = encoderReading / 50.0;
 
-
-
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++)
+  {
     currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
+    {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
     }
     currentAngle_1 = currentAngle;
   }
 
-
-
   float temp_pos = 0;
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     temp_pos = temp_pos + myAS5047D.readDigits();
     delayMicroseconds(250);
   }
@@ -83,18 +82,16 @@ void calibration(int arg_cnt, char **args) {
     return;
   }
 
-
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++)
+  {
     currentAngle = currentAngle - (360.0 / Init_steps_per_revolution);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
+    {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
     }
     currentAngle_1 = currentAngle;
   }
-
-
-
 
   Serial.println("Calibrating fullsteps");
   Serial.println(procent_bar);
@@ -107,12 +104,10 @@ void calibration(int arg_cnt, char **args) {
   int temp_reading = myAS5047D.readDigits();
   int last_reading = temp_reading;
 
-
   steps = 0;
   // step to every single fullstep position and read the Encoder
-  for (int i = 0; i < Init_steps_per_revolution; i++) {
-
-    
+  for (int i = 0; i < Init_steps_per_revolution; i++)
+  {
 
     counter += 1;
 
@@ -127,14 +122,17 @@ void calibration(int arg_cnt, char **args) {
     temp_reading = myAS5047D.readDigits();
     last_reading = temp_reading;
 
-    for (int k = 0; k < avg; k++) {
+    for (int k = 0; k < avg; k++)
+    {
 
       temp_reading = myAS5047D.readDigits();
 
-      if ((temp_reading - last_reading) <= -8192) {
+      if ((temp_reading - last_reading) <= -8192)
+      {
         temp_reading += 16384;
       }
-      else if ((temp_reading - last_reading) >= 8192) {
+      else if ((temp_reading - last_reading) >= 8192)
+      {
         temp_reading -= 16384;
       }
 
@@ -144,25 +142,26 @@ void calibration(int arg_cnt, char **args) {
       delayMicroseconds(250);
     }
 
-    readings[i] =  (encoderReading / avg) + 0.5;
-    if (readings[i] > 16384) {
+    readings[i] = (encoderReading / avg) + 0.5;
+    if (readings[i] > 16384)
+    {
       readings[i] = readings[i] - 16384;
     }
 
-    if (counter == count) {
+    if (counter == count)
+    {
       counter = 0;
       Serial.print(".");
     }
 
     // increment angle one step
     currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
+    {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
       delayMicroseconds(250);
     }
     currentAngle_1 = currentAngle;
-
-
   }
   Serial.println(" -> done!");
 
@@ -189,20 +188,22 @@ void calibration(int arg_cnt, char **args) {
     }
   */
 
-
-
   // print full table to serial monitor
 
   Serial.println("");
   Serial.print("int16_t fullsteps[] ={");
-  for (int i = 0; i < Init_steps_per_revolution; i++) {
+  for (int i = 0; i < Init_steps_per_revolution; i++)
+  {
     Serial.print(readings[i]);
 
-    if (i < Init_steps_per_revolution - 1) {
-      if ((mod(i, 25) == 0) & (i > 0)) {
+    if (i < Init_steps_per_revolution - 1)
+    {
+      if ((mod(i, 25) == 0) & (i > 0))
+      {
         Serial.println(",");
       }
-      else {
+      else
+      {
         Serial.print(",");
       }
     }
@@ -211,12 +212,8 @@ void calibration(int arg_cnt, char **args) {
   Serial.println(" ");
   Serial.println(" ");
 
-
   myAS5047D.initTable(readings);
-
-
 
   myPID.disable();
   enableTC5Interrupts();
 }
-

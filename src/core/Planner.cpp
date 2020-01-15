@@ -4,12 +4,12 @@
 #include "Planner.h"
 #include "../Configuration.h"
 
-float trapezodialSpline(float dem_val) {
+float trapezodialSpline(float dem_val)
+{
 
   static float dem_val_1;
   static float omega;
   static float omega_t;
-
 
   static float set;
 
@@ -22,21 +22,23 @@ float trapezodialSpline(float dem_val) {
 
   static float phi;
 
-
   /* Check if inputs have changed since last step */
-  if (dem_val != dem_val_1 )  {
+  if (dem_val != dem_val_1)
+  {
 
     // save current target as reference
     float phi_0 = set;
 
     phi = dem_val - phi_0;
 
-    if (phi < 0) {
+    if (phi < 0)
+    {
       omega_t = -velLimit;
       a_acc = -accLimit;
       a_decc = accLimit;
     }
-    else {
+    else
+    {
       omega_t = velLimit;
       a_acc = accLimit;
       a_decc = -accLimit;
@@ -47,13 +49,14 @@ float trapezodialSpline(float dem_val) {
     float phi_decc = estimaeAccAngle(omega_t, 0, a_decc);
     float phi_full = phi - phi_acc - phi_decc;
 
-
-    if (sign(phi)*phi_full > 0) {
+    if (sign(phi) * phi_full > 0)
+    {
       phi_1 = phi_0 + phi_acc;
       phi_2 = phi_0 + phi_acc + phi_full;
       phi_3 = phi_0 + phi;
     }
-    else {
+    else
+    {
       // Nicht genug zeit um auf volle geschwindigkeit zu kommen!
       float temp = IntersectionDistance(phi, omega, 0, a_acc);
 
@@ -62,97 +65,93 @@ float trapezodialSpline(float dem_val) {
       phi_3 = phi_0 + phi;
     }
 
-
-
-
     dem_val_1 = dem_val;
   }
 
-
-
-  if (sign(phi) > 0) {
-    if (set < phi_1) {
+  if (sign(phi) > 0)
+  {
+    if (set < phi_1)
+    {
       // accel
       omega += (a_acc / FPID);
       set += omega / FPID;
     }
-    else if (set <= phi_2) {
+    else if (set <= phi_2)
+    {
       omega = omega_t;
       set += omega / FPID;
     }
-    else if ((set <= phi_3) && (omega > 0)) {
+    else if ((set <= phi_3) && (omega > 0))
+    {
       // deccel
       omega += (a_decc / FPID);
       set += omega / FPID;
     }
-    else  {
+    else
+    {
       omega = 0;
       set = dem_val;
     }
   }
-  else {
-    if (set > phi_1) {
+  else
+  {
+    if (set > phi_1)
+    {
       // accel
       omega += (a_acc / FPID);
       set += omega / FPID;
     }
-    else if (set >= phi_2) {
+    else if (set >= phi_2)
+    {
       omega = omega_t;
       set += omega / FPID;
     }
-    else if ((set > phi_3) && (omega < 0)) {
+    else if ((set > phi_3) && (omega < 0))
+    {
       // deccel
       omega += (a_decc / FPID);
       set += omega / FPID;
     }
-    else {
+    else
+    {
       omega = 0;
       set = dem_val;
     }
   }
-
-
-
-
 
   return set;
-
-
 }
 
+float IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc)
+{
 
-
-float IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc) {
-
-  return (2.0 * a_acc * phi  + (omega_final * omega_final) - (omega_0 * omega_0)) / (4 * a_acc);
+  return (2.0 * a_acc * phi + (omega_final * omega_final) - (omega_0 * omega_0)) / (4 * a_acc);
 }
 
-
-float estimaeAccAngle(float omega_0, float omega_t, float a) {
+float estimaeAccAngle(float omega_0, float omega_t, float a)
+{
   float domega = omega_t - omega_0;
   return ((omega_0 + 0.5 * domega) * domega / a);
 }
 
-
-
-
-float sign(float input) {
-  if (input >= 0) {
+float sign(float input)
+{
+  if (input >= 0)
+  {
     return 1.0;
   }
-  else {
+  else
+  {
     return -1.0;
   }
 }
-
-
-
 
 // Motion Planner for Spline interpolation.
 // The Spline will always have the set max Velocity at its fastest point.
 // Bevor and after this Point it will accelerate oder deccelerate
 
-float splineInterpolate(float dem_val) {
+float splineInterpolate(float dem_val)
+{
   static float dem_val_1;
   static float dem_val_0;
   static float rate;
@@ -169,30 +168,32 @@ float splineInterpolate(float dem_val) {
 
 #define TOLERANCE 0.05
 
-
   /* Calculate actual rate */
   /* Check if inputs have changed since last step */
-  if (dem_val != dem_val_1 )  {
+  if (dem_val != dem_val_1)
+  {
 
     diff = fabsf(dem_val_1 - dem_val);
-    dem_time =  (diff / velLimit);
+    dem_time = (diff / velLimit);
 
     rate = (dem_val - set_1) / dem_time;
 
     /* Check numerical tolerance for float precision */
-    if ((rate > -TOLERANCE) && (rate < TOLERANCE)) {
+    if ((rate > -TOLERANCE) && (rate < TOLERANCE))
+    {
       rate = (dem_val - set_1) * FPID;
       steps_left = 1;
     }
-    else {
-      steps_left = (int) (dem_time * FPID);
+    else
+    {
+      steps_left = (int)(dem_time * FPID);
     }
 
     /* Store actual set value at begin of ramp */
     dem_val_0 = set_1;
-
   }
-  else {  /* Input has not changed since last step */
+  else
+  { /* Input has not changed since last step */
     if (steps_left > 0)
       /* Decrement steps left */
       steps_left -= 1;
@@ -202,20 +203,22 @@ float splineInterpolate(float dem_val) {
   }
 
   /* Calculate spline */
-  if (steps_left > 0) {
+  if (steps_left > 0)
+  {
 
     t_act = dem_time - ((float)steps_left / (float)FPID);
-    t_m   = dem_time / 2.0;
-    y_m   = (dem_val + dem_val_0) / 2.0;
+    t_m = dem_time / 2.0;
+    y_m = (dem_val + dem_val_0) / 2.0;
 
-
-    if (t_act <= t_m) {
+    if (t_act <= t_m)
+    {
       // First half of spline
       // increasing rate
       y_act = (t_act / t_m) * (t_act / t_m);
       set = (y_m - dem_val_0) * y_act + dem_val_0;
     }
-    else {
+    else
+    {
       // Second half of spline
       // decreasing rate
       y_act = (1 - (t_act - t_m) / t_m) * (1 - (t_act - t_m) / t_m);
@@ -225,14 +228,15 @@ float splineInterpolate(float dem_val) {
     /* Reset actual rate */
     rate = 0.0;
   }
-  else  {
+  else
+  {
     /* Last step */
     /* Calulate final Value */
     set = (rate / FPID) + set_1;
   }
 
-  dem_val_1  = dem_val;
-  set_1      = set;
+  dem_val_1 = dem_val;
+  set_1 = set;
 
   return set;
 }

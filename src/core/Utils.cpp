@@ -6,31 +6,26 @@
 #include "core/State.h"
 #include "core/Utils.h"
 
-
-
-
-
-
-
-void enaInterrupt() {
-  if (Init_USE_ENABLE_PIN) {
-    if (digitalRead(ena_pin)) { // check if ena_pin is HIGH
+void enaInterrupt()
+{
+  if (Init_USE_ENABLE_PIN)
+  {
+    if (digitalRead(ena_pin))
+    { // check if ena_pin is HIGH
       myPID.disable();
     }
-    else {
+    else
+    {
       //myPID.enable();
       myPID.disable();
     }
   }
 }
 
-
-
-
-int measure_noise() {
+int measure_noise()
+{
 
   disableTC5Interrupts();
-
 
   delay(100);
   int counter = 0;
@@ -40,10 +35,11 @@ int measure_noise() {
   unsigned long last_time = now;
   int dt = ((1000000.0 / FPID) - 1);
 
-
-  while (counter < 500) {
+  while (counter < 500)
+  {
     now = micros();
-    if (now > last_time + dt) {
+    if (now > last_time + dt)
+    {
       last_time = now;
 
       points[counter] = y;
@@ -52,7 +48,8 @@ int measure_noise() {
   }
 
   float mean = 0;
-  for (int i = 0; i < 500; i++) {
+  for (int i = 0; i < 500; i++)
+  {
     mean = mean + points[i];
   }
   mean = mean / 500.0;
@@ -62,12 +59,15 @@ int measure_noise() {
   int upcounter = 0;
   int lowcounter = 0;
 
-  for (int i = 0; i < 500; i++) {
-    if (points[i] > mean ) {
+  for (int i = 0; i < 500; i++)
+  {
+    if (points[i] > mean)
+    {
       upcounter++;
       upper = upper + points[i];
     }
-    else if (points[i] < mean) {
+    else if (points[i] < mean)
+    {
       lowcounter++;
       lower = lower + points[i];
     }
@@ -78,28 +78,18 @@ int measure_noise() {
   float highest = mean;
   float lowest = mean;
 
-  for (int i = 0; i < 500; i++) {
-    if (points[i] > highest) {
+  for (int i = 0; i < 500; i++)
+  {
+    if (points[i] > highest)
+    {
       highest = points[i];
     }
-    else if (points[i] < lowest) {
+    else if (points[i] < lowest)
+    {
       lowest = points[i];
     }
   }
 
   enableTC5Interrupts();
   return abs((abs(highest) - abs(lowest)));
-
 }
-
-
-
-
-
-
-
-
-
-
-
-

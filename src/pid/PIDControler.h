@@ -5,104 +5,89 @@
 #ifndef _CONTROLER_H_
 #define _CONTROLER_H_
 
+class PIDControler
+{
 
-class PIDControler {
+public:
+  PIDControler(float_t *, float_t *, float_t *); // * constructor.  links the PID to the Input, Output, and
+  //   Setpoint. This allows for an automatic handling of the parameters
 
-  public:
+  void compute(); // Compute the output for the given Moment. Should be called with SampleTime
 
+  void setIntegrationalLimit(float_t); // Set the Limit of the Integrational Term
 
-    PIDControler(float_t*,  float_t*, float_t*);	// * constructor.  links the PID to the Input, Output, and
-    //   Setpoint. This allows for an automatic handling of the parameters
+  void setLimit(float_t); // Set the Limit of the Integrational Term
 
-    void compute();															// Compute the output for the given Moment. Should be called with SampleTime
+  void setTunings(float_t, float_t, float_t); // Set the Tuning Parameters for the Controler
 
-    void setIntegrationalLimit(float_t);                // Set the Limit of the Integrational Term
+  void setTunings(float_t, float_t, float_t, float_t, float_t, float_t); // overload to set kf, kv, kac
 
-    void setLimit(float_t);               // Set the Limit of the Integrational Term
+  void setSampleFreq(uint16_t); // set the sample time of the Controler
 
-    void setTunings(float_t, float_t, float_t);	                // Set the Tuning Parameters for the Controler
+  void setDir(bool); // poibility to invert the controler Output
 
-    void setTunings(float_t, float_t, float_t, float_t, float_t, float_t);  // overload to set kf, kv, kac
+  void tune(); // autotune the P,I,D gains
 
-    void setSampleFreq(uint16_t);								// set the sample time of the Controler
+  // get and set functions
+  bool getState();
+  float getError();
 
-    void setDir(bool);                         // poibility to invert the controler Output
+  float getKp();
+  float getKi();
+  float getKd();
+  float getKf();
+  float getKv();
+  float getKac();
 
-    void tune(); 															// autotune the P,I,D gains
+  void setKp(float _Kp);
+  void setKi(float _Ki);
+  void setKd(float _Kd);
+  void setKf(float _Kf);
+  void setKv(float _Kv);
+  void setKac(float _Kac);
 
+  void enable();
+  void disable();
+  void setState(bool);
 
-// get and set functions
-    bool getState();
-    float getError();
+private:
+  void calcLookup();
+  void reset();
 
-    float getKp();
-    float getKi();
-    float getKd();
-    float getKf();
-    float getKv();
-    float getKac();
-    
-    void setKp(float _Kp);
-    void setKi(float _Ki);
-    void setKd(float _Kd);
-    void setKf(float _Kf);
-    void setKv(float _Kv);
-    void setKac(float _Kac);
+  float_t myKp;  // * (P)roportional Tuning Parameter
+  float_t myKi;  // * (I)ntegral Tuning Parameter
+  float_t myKd;  // * (D)erivative Tuning Parameter
+  float_t myKf;  // * (F)riction Tuning Parameter
+  float_t myKv;  // * (V)elocitiy feedforward gain
+  float_t myKac; // * (AC)celeration feedforward gain
 
+  float_t kl; // anti windup LImit
 
-
-
-    void enable();
-    void disable();
-    void setState(bool);
-
-
-
-  private:
-    void calcLookup();
-    void reset();
-
-
-    float_t myKp;          // * (P)roportional Tuning Parameter
-    float_t myKi;          // * (I)ntegral Tuning Parameter
-    float_t myKd;          // * (D)erivative Tuning Parameter
-    float_t myKf;          // * (F)riction Tuning Parameter
-    float_t myKv; 				 // * (V)elocitiy feedforward gain
-    float_t myKac; 				 // * (AC)celeration feedforward gain
-
-
-    float_t kl;                 // anti windup LImit
-
-
-    float_t *Input;              // * Pointers to the Input, Output, and Setpoint variables
-    float_t *Output;             //   This creates a hard link between the variables and the
-    float_t *Setpoint;           //   PID, freeing the user from having to constantly tell us
-    //   what these values are.  with pointers we'll just know.
+  float_t *Input;    // * Pointers to the Input, Output, and Setpoint variables
+  float_t *Output;   //   This creates a hard link between the variables and the
+  float_t *Setpoint; //   PID, freeing the user from having to constantly tell us
+  //   what these values are.  with pointers we'll just know.
 
   float_t error;
 
-    float_t IntegrationalTerm;
-    float_t IntegrationLimit;
+  float_t IntegrationalTerm;
+  float_t IntegrationLimit;
 
-    float_t OutputLimit;
+  float_t OutputLimit;
 
-    float_t lastSetpoint;
-    float_t lastInput;
-    float_t lastVelocity;
-    float_t lastAcceleration;
-    
-    uint16_t sampleFreq;
-    float_t sampleTime;
+  float_t lastSetpoint;
+  float_t lastInput;
+  float_t lastVelocity;
+  float_t lastAcceleration;
 
-    bool PIDenabled;
+  uint16_t sampleFreq;
+  float_t sampleTime;
 
-    float_t localOutput;
+  bool PIDenabled;
 
+  float_t localOutput;
 
-    float_t tanhTable[200]; 	// Lookup Table for tanh values. Used to apply friction compensation
-
-
+  float_t tanhTable[200]; // Lookup Table for tanh values. Used to apply friction compensation
 };
-
 
 #endif
