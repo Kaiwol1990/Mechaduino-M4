@@ -6,34 +6,98 @@
 
 #include "language/en.h"
 
-void splineMovement(int arg_cnt, char **args)
+void init_movement_menu()
 {
+  // generates the commands and dependencies for this "submenu"
+  myCommander.cmdAdd("motion", "set speed and acceleration", set_motion);
+  myCommander.cmdAdd(step_response_command, "execute a step response", step_response);
+  myCommander.cmdAdd("spline", "start spline movement", splineMovement);
+  myCommander.cmdAdd("pos", "print current position", reportPostition);
+}
+
+void reportPostition()
+{
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Prints the current position and target on the console");
+    Serial.println(" ");
+    return;
+  }
+  Serial.print("Target = ");
+  Serial.print(r);
+  Serial.print(", ");
+  Serial.print("Postion = ");
+  Serial.println(y);
+}
+
+void splineMovement()
+{
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Menu to execute spline movement with optional velocity and acceleration");
+    Serial.println(" ");
+    Serial.println(" spline -r [x] -v [x] -a [x]");
+    Serial.println(" ");
+    Serial.println("-r [x]  target angle in deg");
+    Serial.println("-v [x]  set the maximal /  target velocity to the given value in deg/s");
+    Serial.println("-a [x]  set the maximal /  target accleration to the given value in deg/s^2");
+    Serial.println(" ");
+    return;
+  }
+
   // check for given velocity
-  velLimit = return_float_argument(args, arg_cnt, "-v", velLimit, 100, 5000);
-  accLimit = return_float_argument(args, arg_cnt, "-a", accLimit, 100, 50000);
+  velLimit = myCommander.return_float_argument("-v", velLimit, 100, 5000);
+  accLimit = myCommander.return_float_argument("-a", accLimit, 100, 50000);
 
   // calculate Target
-  steps = ((return_float_argument(args, arg_cnt, "-r", r, -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0) + 0.5;
+  steps = ((myCommander.return_float_argument("-r", r, -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0) + 0.5;
   mystepInterface.writesteps(steps);
 }
 
-void set_motion(int arg_cnt, char **args)
+void set_motion()
 {
-  float velLimit_temp = return_float_argument(args, arg_cnt, "-v", velLimit, 1, 1000000);
-  float accLimit_temp = return_float_argument(args, arg_cnt, "-acc", accLimit, 1, 1000000);
+  //if (myCommander.check_argument(args, arg_cnt, help_subcmd))
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Menu to maximal velocity and acceleration");
+    Serial.println(" ");
+    Serial.println(" motion -v [x] -a [x]");
+    Serial.println(" ");
+    Serial.println("-v [x]  set the maximal /  target velocity to the given value in deg/s");
+    Serial.println("-a [x]  set the maximal /  target accleration to the given value in deg/s^2");
+    Serial.println(" ");
+    return;
+  }
+
+  float velLimit_temp = myCommander.return_float_argument("-v", velLimit, 1, 1000000);
+  float accLimit_temp = myCommander.return_float_argument("-acc", accLimit, 1, 1000000);
   velLimit = velLimit_temp;
   accLimit = accLimit_temp;
 }
 
-void step_response(int arg_cnt, char **args)
+void step_response()
 {
+  //if (myCommander.check_argument(args, arg_cnt, help_subcmd))
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Menu execute a step response");
+    Serial.println(" ");
+    Serial.println(" response -r [x] -v [x] -a [x]");
+    Serial.println(" ");
+    Serial.println("-r [x]  motion length in deg");
+    Serial.println("-v [x]  set the maximal /  target velocity to the given value in deg/s");
+    Serial.println("-a [x]  set the maximal /  target accleration to the given value in deg/s^2");
+    Serial.println(" ");
+    return;
+  }
+
   Serial.println(step_response_header);
 
-  int response_steps = return_float_argument(args, arg_cnt, "-s", 1000, 1, 10000);
+  int response_steps = ((myCommander.return_float_argument("-r", r, -1000.0, 1000.0) * mySettings.currentSettings.steps_per_Revolution * mySettings.currentSettings.microstepping) / 360.0) + 0.5;
 
   // check for given velocity
-  velLimit = return_float_argument(args, arg_cnt, "-v", velLimit, 100, 5000);
-  accLimit = return_float_argument(args, arg_cnt, "-a", accLimit, 100, 50000);
+  velLimit = myCommander.return_float_argument("-v", velLimit, 100, 5000);
+  accLimit = myCommander.return_float_argument("-a", accLimit, 100, 50000);
 
   int frequency = 5000;
 

@@ -3,10 +3,14 @@
 
 #include <arduino.h>
 
-void set_motion(int arg_cnt, char **args);
+void init_movement_menu();
 
-void splineMovement(int arg_cnt, char **args);
+void reportPostition();
 
-void step_response(int arg_cnt, char **args);
+void set_motion();
+
+void splineMovement();
+
+void step_response();
 
 #endif

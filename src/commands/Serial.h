@@ -5,12 +5,7 @@
 
 void init_menu();
 
-void Serial_menu(int arg_cnt, char **args);
-
-void cmd_calibration(int arg_cnt, char **args);
-
-void reportPostition(int arg_cnt, char **args);
-
-void state(int arg_cnt, char **args);
+//void Serial_menu();
+void Serial_menu();
 
 #endif

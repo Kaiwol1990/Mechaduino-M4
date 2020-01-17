@@ -3,6 +3,8 @@
 
 #include <arduino.h>
 
-void setting_menu(int arg_cnt, char **args);
+void init_settings_menu();
+
+void setting_menu();
 
 #endif

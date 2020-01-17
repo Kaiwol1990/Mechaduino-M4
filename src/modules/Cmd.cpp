@@ -6,24 +6,20 @@
 static uint8_t msg[MAX_MSG_SIZE];
 static uint8_t *msg_ptr;
 
-// linked list for command table
-static cmd_t *cmd_tbl_list, *cmd_tbl;
-
-// text strings for command prompt (stored in flash)
-const char cmd_prompt[] = "CMD >> ";
-const char cmd_unrecog[] = "CMD: Command not recognized.";
-
 static Stream *stream;
 
-//Generate the main command prompt
-void cmd_display()
+SerialCommander::SerialCommander(Stream *str)
 {
-  char buf[256];
+  stream = str;
+  msg_ptr = msg;
+  cmdCount = 0;
+}
 
+//Generate the main command prompt
+void SerialCommander::cmd_display()
+{
   stream->println();
-
-  strcpy_P(buf, cmd_prompt);
-  stream->print(buf);
+  stream->print(cmd_prompt);
 }
 
 /**************************************************************************/
@@ -33,44 +29,42 @@ void cmd_display()
     it will jump to the corresponding function.
 */
 /**************************************************************************/
-void cmd_parse(char *cmd)
+void SerialCommander::cmd_parse(char *cmd)
 {
-  uint8_t argc, i = 0;
-  char *argv[30];
-  char buf[256];
-  cmd_t *cmd_entry;
+  uint8_t i = 0;
 
   fflush(stdout);
 
   // parse the command line statement and break it up into space-delimited
   // strings. the array of strings will be saved in the argv array.
-  argv[i] = strtok(cmd, " ");
-  do
+  args[i] = strtok(cmd, " ");
+
+  while ((args[i] != NULL) && (i < 30))
   {
-    argv[++i] = strtok(NULL, " ");
-  } while ((i < 30) && (argv[i] != NULL));
+    args[++i] = strtok(NULL, " ");
+  }
 
   // save off the number of arguments for the particular command.
-  argc = i;
+  arg_cnt = i;
 
   // parse the command table for valid command. used argv[0] which is the
   // actual command name typed in at the prompt
-  for (cmd_entry = cmd_tbl; cmd_entry != NULL; cmd_entry = cmd_entry->next)
+  for (uint8_t i = 0; i < cmdCount; i++)
   {
-    if (!strcmp(argv[0], cmd_entry->cmd))
+    if (!strcmp(args[0], cmdBuffer[i].cmd))
     {
-      cmd_entry->func(argc, argv);
+      //cmdBuffer[i].func(argc, argv);
+      cmdBuffer[i].func();
       cmd_display();
       return;
     }
   }
 
   // command not recognized. print message and re-generate prompt.
-  strcpy_P(buf, cmd_unrecog);
-  stream->println(buf);
+  stream->println(cmd_unrecognized);
   stream->println("");
 
-  cmd_display();
+  SerialCommander::cmd_display();
 }
 
 /**************************************************************************/
@@ -80,7 +74,7 @@ void cmd_parse(char *cmd)
     or "enter" key.
 */
 /**************************************************************************/
-void cmd_handler(char c)
+void SerialCommander::cmd_handler(char c)
 {
   switch (c)
   {
@@ -116,7 +110,7 @@ void cmd_handler(char c)
 }
 
 // if Serial available parse it to handler
-void cmdPoll()
+void SerialCommander::cmdPoll()
 {
   while (stream->available())
   {
@@ -124,41 +118,50 @@ void cmdPoll()
   }
 }
 
-// Initialize the command line interface
-void cmdInit(Stream *str)
-{
-  stream = str;
-  // init the msg ptr
-  msg_ptr = msg;
-
-  // init the command table
-  cmd_tbl_list = NULL;
-}
-
 //Add a command to the command table.
-void cmdAdd(const char *name, void (*func)(int argc, char **argv))
+void SerialCommander::cmdAdd(const char *name, const char *description, void (*func)())
 {
-  // alloc memory for command struct
-  cmd_tbl = (cmd_t *)malloc(sizeof(cmd_t));
-
   // alloc memory for command name
   char *cmd_name = (char *)malloc(strlen(name) + 1);
 
-  // copy command name
+  // alloc memory for command description
+  char *cmd_des = (char *)malloc(strlen(description) + 1);
+
+  // copy command name and description
   strcpy(cmd_name, name);
+  strcpy(cmd_des, description);
 
   // terminate the command name
   cmd_name[strlen(name)] = '\0';
 
-  // fill out structure
-  cmd_tbl->cmd = cmd_name;
-  cmd_tbl->func = func;
-  cmd_tbl->next = cmd_tbl_list;
-  cmd_tbl_list = cmd_tbl;
+  // add data to cmd Buffer
+  cmdBuffer[cmdCount].cmd = cmd_name;
+  cmdBuffer[cmdCount].description = cmd_des;
+  cmdBuffer[cmdCount].func = func;
+
+  // increment counter
+  cmdCount++;
+}
+
+void SerialCommander::printlist()
+{
+  for (uint8_t i = 0; i < cmdCount; i++)
+  {
+    uint8_t length = strlen(cmdBuffer[i].cmd);
+
+    Serial.print(cmdBuffer[i].cmd);
+
+    for (uint8_t k = 0; k < (10 - length); k++)
+    {
+      Serial.print(" ");
+    }
+    Serial.print("\t - ");
+    Serial.println(cmdBuffer[i].description);
+  }
 }
 
 // Checks if a argument was called and returns the integer after it
-int32_t return_integer_argument(char **args, uint8_t arg_cnt, const char *identifier, int32_t default_value, int32_t min_value, int32_t max_value)
+int32_t SerialCommander::return_integer_argument(const char *identifier, int32_t default_value, int32_t min_value, int32_t max_value)
 {
 
   int32_t val = default_value;
@@ -179,7 +182,7 @@ int32_t return_integer_argument(char **args, uint8_t arg_cnt, const char *identi
 }
 
 //Checks if a argument was called and returns the float after it
-float return_float_argument(char **args, uint8_t arg_cnt, const char *identifier, float default_value, float min_value, float max_value)
+float SerialCommander::return_float_argument(const char *identifier, float default_value, float min_value, float max_value)
 {
 
   float val = default_value;
@@ -201,28 +204,12 @@ float return_float_argument(char **args, uint8_t arg_cnt, const char *identifier
   {
     val = min_value;
   }
-  // val = constrain(100 * val, 100 * min_value, 100 * max_value) / 100.0;
-  return val;
-}
 
-//Checks if a argument was called and returns the char value after it
-String return_char_argument(char **args, uint8_t arg_cnt, const char *identifier, const String default_value)
-{
-
-  String val = default_value;
-  for (byte i = 1; i < arg_cnt; i++)
-  {
-    String argument = args[i];
-    if (argument == identifier)
-    {
-      val = args[i + 1];
-    }
-  }
   return val;
 }
 
 //Checks if a argument was called and returns the boolean value after it
-bool return_bool_argument(char **args, uint8_t arg_cnt, const char *identifier, bool default_value)
+bool SerialCommander::return_bool_argument(const char *identifier, bool default_value)
 {
 
   bool val = default_value;
@@ -239,7 +226,7 @@ bool return_bool_argument(char **args, uint8_t arg_cnt, const char *identifier, 
 }
 
 //Checks if a argument was called and returns true if the argument was found
-bool check_argument(char **args, uint8_t arg_cnt, const char *identifier)
+bool SerialCommander::check_argument(const char *identifier)
 {
 
   for (byte i = 1; i < arg_cnt; i++)

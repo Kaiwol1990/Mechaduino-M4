@@ -124,7 +124,7 @@ void PIDControler::updateGains()
   IntegrationLimit = mySettings.currentSettings.IntegralLimit;
 
   // enable controller
-  PIDControler::enable();
+  //PIDControler::enable();
 }
 
 void PIDControler::setState(bool enabled_)

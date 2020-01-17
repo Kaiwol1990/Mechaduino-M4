@@ -1,5 +1,5 @@
 
-#include "commands/SerialPID.h"
+#include "commands/SerialTools.h"
 
 #include "core/State.h"
 #include "modules/Cmd.h"
@@ -9,32 +9,69 @@
 #include "core/Controler.h"
 #include "SAMD51/interrupts.h"
 
-void SoftReset(int arg_cnt, char **args)
+void init_tools_menu()
 {
+  // generates the commands and dependencies for this "submenu"
+  myCommander.cmdAdd(reset_command, "reset the Mechaduino", SoftReset);
+  myCommander.cmdAdd("loop", "measure the maximal frequency", get_max_frequency);
+  myCommander.cmdAdd(state_command, "get current state", state);
+}
+
+void state()
+{
+  Serial.println(state_header);
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Menu to set the Mechaduino to a specific state");
+    Serial.println(" ");
+    Serial.println(" state -on / -off / -show");
+    Serial.println(" ");
+    Serial.println("-on    enables the Mechaduino");
+    Serial.println("-off   disables the Mechaduino");
+    Serial.println("-show  report the current state of the Mechaduino");
+    Serial.println(" ");
+    return;
+  }
+
+  if (myCommander.check_argument("-off"))
+  {
+    Serial.println("disabling");
+    myPID.disable();
+  }
+
+  if (myCommander.check_argument("-on"))
+  {
+    Serial.println("enabling");
+    myPID.enable();
+  }
+
+  if (myCommander.check_argument("-show"))
+  {
+    Serial.print(" Motor state = ");
+    Serial.println(myPID.getState());
+  }
+}
+
+void SoftReset()
+{
+  if (myCommander.check_argument(help_subcmd))
+  {
+    Serial.println("Resets the Mechaduino. The Serialloop will be closed!");
+    Serial.println(" ");
+    return;
+  }
   Serial.println(reset_header);
   NVIC_SystemReset(); // processor software reset
 }
 
-void set_TC(int arg_cnt, char **args)
+void get_max_frequency()
 {
-  Serial.println(interrupt_header);
-
-  bool TC5_bool = return_bool_argument(args, arg_cnt, "-TC5", true);
-
-  if (TC5_bool)
+  if (myCommander.check_argument(help_subcmd))
   {
-    Serial.println("TC5 enabled!");
-    enableTC5Interrupts();
+    Serial.println("Calculates the maximal possbile PID frequency of the Mechaduino");
+    Serial.println(" ");
+    return;
   }
-  else
-  {
-    Serial.println("TC5 disabled!");
-    disableTC5Interrupts();
-  }
-}
-
-void get_max_frequency(int arg_cnt, char **args)
-{
   disableTC5Interrupts();
 
   uint32_t max_counter = 10000;

@@ -13,6 +13,7 @@
 #include "pid/PIDControler.h"
 #include "modules/filters.h"
 #include "SAMD51/stepInterface.h"
+#include "modules/Cmd.h"
 
 //---- interrupt vars ----
 
@@ -44,5 +45,7 @@ extern PIDControler myPID;
 extern stepInterface mystepInterface;
 
 extern userSettings mySettings;
+
+extern SerialCommander myCommander;
 
 #endif

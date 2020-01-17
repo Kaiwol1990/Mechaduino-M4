@@ -22,7 +22,9 @@
 */
 
 #include "core/boot.h"
-#include "modules/Cmd.h"
+
+//#include "modules/Cmd.h"
+#include "core/State.h"
 
 // -------------------------------------
 // -               setup               -
@@ -37,5 +39,5 @@ void setup()
 // -------------------------------------
 void loop()
 {
-  cmdPoll();
+  myCommander.cmdPoll();
 }

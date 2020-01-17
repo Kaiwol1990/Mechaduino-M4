@@ -76,8 +76,6 @@ public:
 
     void commit();
 
-    void reportPID();
-
     void plotSettings(int8_t slot);
 
     void plotState();

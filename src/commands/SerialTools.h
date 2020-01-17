@@ -3,10 +3,12 @@
 
 #include <arduino.h>
 
-void SoftReset(int arg_cnt, char **args);
+void init_tools_menu();
 
-void set_TC(int arg_cnt, char **args);
+void state();
 
-void get_max_frequency(int arg_cnt, char **args);
+void SoftReset();
+
+void get_max_frequency();
 
 #endif

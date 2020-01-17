@@ -33,3 +33,5 @@ PIDControler myPID(&y, &u, &r);
 stepInterface mystepInterface(step_pin, dir_pin, ena_pin, Init_steps_per_revolution, Init_microstepping);
 
 userSettings mySettings;
+
+SerialCommander myCommander(&Serial);

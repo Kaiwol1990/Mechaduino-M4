@@ -84,7 +84,7 @@ void boot()
   }
   else
   {
-    myPID.enable();
+    //myPID.enable();
   }
   Serial.println(" OK");
 
@@ -115,7 +115,9 @@ void boot()
   Serial.println(firmware_version);
 
   init_menu();
+  /*
   cmdInit(&Serial);
+  */
 
   Serial.println("");
   Serial.print("CMD >> ");

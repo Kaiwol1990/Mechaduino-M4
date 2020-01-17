@@ -108,36 +108,7 @@ void userSettings::loadDefaultSettings()
   updateSettings();
 }
 
-void userSettings::reportPID()
-{
-  Serial.println(" ");
-  Serial.println("Current PID Settings: ");
-  Serial.println("--------------------------");
 
-  Serial.print("Kp = ");
-  Serial.println(currentSettings.Kp);
-
-  Serial.print("Ki = ");
-  Serial.println(currentSettings.Ki);
-
-  Serial.print("Kd = ");
-  Serial.println(currentSettings.Kd);
-
-  Serial.print("Kf = ");
-  Serial.println(currentSettings.Kf);
-
-  Serial.print("Kv = ");
-  Serial.println(currentSettings.Kv);
-
-  Serial.print("Kac = ");
-  Serial.println(currentSettings.Kac);
-
-  Serial.print("Mmax = ");
-  Serial.println(currentSettings.Mmax);
-
-  Serial.print("Integrational Limit = ");
-  Serial.println(currentSettings.IntegralLimit);
-}
 
 void userSettings::plotSettings(int8_t slot)
 {

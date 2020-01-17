@@ -3,6 +3,10 @@
 
 #include <arduino.h>
 
-void set_gains(int arg_cnt, char **args);
+void init_pid_menu();
+
+void set_gains();
+
+void reportPID();
 
 #endif
