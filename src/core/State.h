@@ -7,6 +7,7 @@
 #include <arduino.h>
 #include "../Configuration.h"
 
+#include "core/settings.h"
 #include "output/A4954.h"
 #include "sensor/AS5047D.h"
 #include "pid/PIDControler.h"
@@ -32,7 +33,7 @@ extern bool dir; // flag for  dir setting
 //extern  bool enabled;     // flag for  enabled setting
 
 //---- lookup table for the encoder reading ----
-extern int16_t fullsteps[200];
+//extern int16_t fullsteps[200];
 
 extern AS5047D myAS5047D;
 
@@ -41,5 +42,7 @@ extern A4954 myA4954;
 extern PIDControler myPID;
 
 extern stepInterface mystepInterface;
+
+extern userSettings mySettings;
 
 #endif

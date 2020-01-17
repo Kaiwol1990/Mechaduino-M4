@@ -1,5 +1,7 @@
 
 #include "PIDControler.h"
+#include "core/settings.h"
+#include "core/State.h"
 //#include "helperFunctions.h"
 //#include "State.h"
 
@@ -13,9 +15,6 @@ PIDControler::PIDControler(float_t *Input_, float_t *Output_, float_t *Setpoint_
   Setpoint = Setpoint_;
 
   OutputLimit = 10000000000000000.0;
-
-  // calc Lookuptable
-  PIDControler::calcLookup();
 
   // Reset Controler to make sure output is initial zero
   PIDControler::disable();
@@ -90,39 +89,6 @@ void PIDControler::compute()
   }
 }
 
-void PIDControler::setIntegrationalLimit(float_t Limit_)
-{
-  IntegrationLimit = Limit_;
-}
-
-void PIDControler::setLimit(float_t Limit_)
-{
-  OutputLimit = Limit_;
-}
-
-void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_)
-{
-
-  // scale Gains with Sampletime
-  PIDControler::setKp(Kp_);
-  PIDControler::setKi(Ki_);
-  PIDControler::setKd(Kd_);
-}
-
-void PIDControler::setTunings(float_t Kp_, float_t Ki_, float_t Kd_, float_t Kf_, float_t Kv_, float_t Kac_)
-{
-
-  // scale Gains with Sampletime
-  PIDControler::setKp(Kp_);
-  PIDControler::setKi(Ki_);
-  PIDControler::setKd(Kd_);
-
-  // advanced parameters
-  PIDControler::setKf(Kf_);
-  PIDControler::setKv(Kv_);
-  PIDControler::setKac(Kac_);
-}
-
 bool PIDControler::getState()
 {
   return PIDenabled;
@@ -140,64 +106,25 @@ float PIDControler::getError()
   return error;
 }
 
-float PIDControler::getKp()
+void PIDControler::updateGains()
 {
-  return myKp;
-}
+  // disable controller
+  PIDControler::disable();
 
-float PIDControler::getKi()
-{
-  return myKi / sampleTime;
-}
+  // compute new gains based on current settings
+  myKp = mySettings.currentSettings.Kp;
+  myKi = mySettings.currentSettings.Ki * sampleTime;
+  myKd = mySettings.currentSettings.Kd / sampleTime;
 
-float PIDControler::getKd()
-{
-  return myKd * sampleTime;
-}
+  myKf = mySettings.currentSettings.Kf;
+  myKv = mySettings.currentSettings.Kv;
+  myKac = mySettings.currentSettings.Kac;
 
-float PIDControler::getKf()
-{
-  return myKf;
-}
+  OutputLimit = mySettings.currentSettings.Mmax;
+  IntegrationLimit = mySettings.currentSettings.IntegralLimit;
 
-float PIDControler::getKv()
-{
-  return myKv;
-}
-
-float PIDControler::getKac()
-{
-  return myKac;
-}
-
-void PIDControler::setKp(float _Kp)
-{
-  myKp = _Kp;
-}
-
-void PIDControler::setKi(float _Ki)
-{
-  myKi = _Ki * sampleTime;
-}
-
-void PIDControler::setKd(float _Kd)
-{
-  myKd = _Kd / sampleTime;
-}
-
-void PIDControler::setKf(float _Kf)
-{
-  myKf = _Kf;
-}
-
-void PIDControler::setKv(float _Kv)
-{
-  myKv = _Kv;
-}
-
-void PIDControler::setKac(float _Kac)
-{
-  myKac = _Kac;
+  // enable controller
+  PIDControler::enable();
 }
 
 void PIDControler::setState(bool enabled_)
@@ -239,98 +166,3 @@ void PIDControler::reset()
   IntegrationalTerm = 0;
   localOutput = 0;
 }
-
-void PIDControler::calcLookup()
-{
-  for (uint16_t i = 0; i < 200; i++)
-  {
-    tanhTable[i] = tanh(((double)(i - 100.0) / 100.0) * M_Pi);
-  }
-}
-
-/*
-void PIDControler::anticogging() {
-
-  float coggingTarget;
-  float coggingTorque[360] = {};
-  float coggingPosition[360] = {};
-  float coggingTorqueReverse[360] = {};
-  float coggingPositionReverse[360] = {};
-
-  PIDControler::enable();
-
-
-  // Set target
-  coggingTarget = 0;
-  mystepInterface.writeangle(coggingTarget);
-  delay(1000);
-
-
-  Serial.println("Forward");
-  Serial.println("Target; Position; Torque");
-  for (uint16_t i = 0; i < 360; i++) {
-
-    float target = (float)i;
-    float lastTarget = target - 1.0;
-
-    for (uint16_t j = 0; j < 10; j++) {
-      mystepInterface.writeangle(lastTarget + ((float)j / 10.0));
-    }
-
-    delay(100);
-
-    coggingTorque[i] = *Output;
-    coggingPosition[i] = *Input;
-
-    Serial.print((float)i, 4);
-    Serial.print("; ");
-    Serial.print(coggingPosition[i], 4);
-    Serial.print("; ");
-    Serial.println(coggingTorque[i], 4);
-  }
-
-
-  Serial.println("Reverse");
-  Serial.println("Target; Position; Torque");
-  for (uint16_t i = 360; i > 0; i--) {
-
-    float target = (float)i;
-    float lastTarget = target + 1.0;
-
-    for (uint16_t j = 0; j < 10; j++) {
-      mystepInterface.writeangle(lastTarget + ((float)j / 10.0));
-    }
-    //mystepInterface.writeangle((float)i);
-    delay(100);
-
-    coggingTorqueReverse[i] = *Output;
-    coggingPositionReverse[i] = *Input;
-
-    Serial.print((float)i, 4);
-    Serial.print("; ");
-    Serial.print(coggingPositionReverse[i], 4);
-    Serial.print("; ");
-    Serial.println(coggingTorqueReverse[i], 4);
-  }
-
-
-
-  PIDControler::disable();
-
-
-  Serial.print("Cogging[360] = {");
-  for (uint16_t i = 0; i < 360; i++) {
-    Serial.print(coggingTorque[i], 4);
-    Serial.print(" ,");
-  }
-  Serial.println("};");
-
-  Serial.print("coggingPosition[360] = {");
-  for (uint16_t i = 0; i < 360; i++) {
-    Serial.print(coggingPosition[i], 4);
-    Serial.print(" ,");
-  }
-  Serial.println("};");
-
-}
-*/

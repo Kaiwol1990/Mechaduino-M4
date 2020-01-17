@@ -4,15 +4,14 @@
 #include <SPI.h>
 
 #include "SAMD51/wiringMechaduino.h"
+#include "core/State.h"
 #include "modules/custommath.h"
 
 static Stream *stream;
 
-//steps_per_revolution( steps_per_revolution_ )
 // CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
-AS5047D::AS5047D(uint16_t steps_per_revolution_, Stream *str, EPortType port_, uint32_t pin_) : port(port_),
-                                                                                                pin(pin_),
-                                                                                                steps_per_revolution(steps_per_revolution_)
+AS5047D::AS5047D(Stream *str, EPortType port_, uint32_t pin_) : port(port_),
+                                                                pin(pin_)
 {
   stream = str;
 }
@@ -226,7 +225,7 @@ void AS5047D::initTable(int16_t *fullsteps)
 {
 
   // calculate the ticks between the fullsteps
-  float ticks[steps_per_revolution];
+  float ticks[mySettings.currentSettings.steps_per_Revolution];
   int32_t counter = 0;
 
   int32_t low;
@@ -235,14 +234,14 @@ void AS5047D::initTable(int16_t *fullsteps)
   int32_t jStart = 0;
   int32_t stepNo = 0;
 
-  for (int32_t i = 0; i < steps_per_revolution; i++)
+  for (int32_t i = 0; i < mySettings.currentSettings.steps_per_Revolution; i++)
   {
     low = i;
     high = i + 1;
 
-    if (high >= steps_per_revolution)
+    if (high >= mySettings.currentSettings.steps_per_Revolution)
     {
-      high = high - steps_per_revolution;
+      high = high - mySettings.currentSettings.steps_per_Revolution;
     }
 
     ticks[i] = fullsteps[high] - fullsteps[low];
@@ -267,20 +266,17 @@ void AS5047D::initTable(int16_t *fullsteps)
     }
   }
 
-  // calculate the lookup table on the fly
-  //counter = 0;
-  float angle_per_step = 360.0 / (float)steps_per_revolution;
   float lookupAngle;
   float tick;
 
   int32_t p = 0;
 
-  for (int32_t i = iStart; i < (iStart + steps_per_revolution + 1); i++)
+  for (int32_t i = iStart; i < (iStart + mySettings.currentSettings.steps_per_Revolution + 1); i++)
   {
 
-    if (i >= steps_per_revolution)
+    if (i >= mySettings.currentSettings.steps_per_Revolution)
     {
-      tick = ticks[i - steps_per_revolution];
+      tick = ticks[i - mySettings.currentSettings.steps_per_Revolution];
     }
     else
     {
@@ -293,24 +289,22 @@ void AS5047D::initTable(int16_t *fullsteps)
       {
         counter += 1;
 
-        lookupAngle = floatmod((angle_per_step * i) + ((angle_per_step * j) / tick), 360);
+        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
 
-        //lookuptable[p] = (round(10.0 * lookupAngle) ) / 10.0;
         lookuptable[p] = lookupAngle;
 
         p++;
       }
     }
 
-    else if (i == (iStart + steps_per_revolution))
+    else if (i == (iStart + mySettings.currentSettings.steps_per_Revolution))
     {
       for (int32_t j = 0; j < jStart; j++)
       {
         counter += 1;
 
-        lookupAngle = floatmod((angle_per_step * i) + ((angle_per_step * j) / tick), 360);
+        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
 
-        //lookuptable[p] = (round(10.0 * lookupAngle)) / 10.0;
         lookuptable[p] = lookupAngle;
 
         p++;
@@ -322,26 +316,14 @@ void AS5047D::initTable(int16_t *fullsteps)
       {
         counter += 1;
 
-        lookupAngle = floatmod((angle_per_step * i) + ((angle_per_step * j) / tick), 360);
+        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
 
-        //lookuptable[p] = (round(10.0 * lookupAngle)) / 10.0;
         lookuptable[p] = lookupAngle;
 
         p++;
       }
     }
   }
-
-  //  Serial.println(p);
-  //  Serial.println(" ");
-  //  for (uint16_t i = 0; i < 16384; i++) {
-  //    Serial.print(lookuptable[i]);
-  //    Serial.print(" ,");
-  //
-  //  }
-  //
-  //  Serial.println(" ");
-  //  Serial.println(" ");
 }
 
 // PRIVATE METHODS  * * * * * * * * * * * * * * * * * * * *

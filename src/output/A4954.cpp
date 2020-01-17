@@ -3,6 +3,7 @@
 #include "Lookups.h"
 
 #include "modules/custommath.h"
+#include "core/State.h"
 
 #include "SAMD51/wiringMechaduino.h"
 #include "SAMD51/board.h"
@@ -11,7 +12,7 @@
 #define M_Pi 3.141592653589793115997963
 #define deg2rad M_Pi / 180.0
 
-A4954::A4954(uint16_t steps_per_revolution_, uint32_t pinIN1_, uint32_t pinIN2_, uint32_t pinIN3_, uint32_t pinIN4_, uint32_t pinDAC1_, uint32_t pinDAC2_)
+A4954::A4954(uint32_t pinIN1_, uint32_t pinIN2_, uint32_t pinIN3_, uint32_t pinIN4_, uint32_t pinDAC1_, uint32_t pinDAC2_)
 {
   pinDAC2 = pinDAC2_;
   pinDAC1 = pinDAC1_;
@@ -19,8 +20,6 @@ A4954::A4954(uint16_t steps_per_revolution_, uint32_t pinIN1_, uint32_t pinIN2_,
   pinIN3 = pinIN3_;
   pinIN2 = pinIN2_;
   pinIN1 = pinIN1_;
-  steps_per_revolution = steps_per_revolution_;
-  stepangle = 360.0 / (float)steps_per_revolution;
 }
 
 void A4954::init()
@@ -30,7 +29,7 @@ void A4954::init()
   analogWriteResolution(12);
 
   // calculate phase multiplier
-  phase_multiplier = ((10.0 * (float)steps_per_revolution) / 4.0);
+  phase_multiplier = ((10.0 * mySettings.currentSettings.steps_per_Revolution) / 4.0);
 
   // set pin directions
   digitalFASTpinMode(port, pinIN1, OUTPUT);
@@ -195,7 +194,7 @@ void A4954::calcLookup()
   double temp;
   for (uint16_t i = 0; i < 200; i++)
   {
-    temp = tanh((((double)i - 100.0) / 100.0) * M_Pi) * 0.95 * stepangle;
+    temp = tanh((((double)i - 100.0) / 100.0) * M_Pi) * 0.95 * mySettings.PA;
     phaseadvancedTable[i] = (float)temp;
   }
 }

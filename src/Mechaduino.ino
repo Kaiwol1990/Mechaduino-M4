@@ -22,7 +22,7 @@
 */
 
 #include "core/boot.h"
-#include "core/Cmd.h"
+#include "modules/Cmd.h"
 
 // -------------------------------------
 // -               setup               -

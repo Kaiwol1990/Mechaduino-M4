@@ -16,9 +16,6 @@
 // fullsteps for 360 degrees
 #define Init_steps_per_revolution 200
 
-// mm per revolution
-#define Init_mm_rev 40
-
 //set to 1 to invert your motor direction
 #define Init_INVERT 0
 
@@ -43,6 +40,8 @@
 #define Init_Kf 0.3
 #define Init_Kv 0.0
 #define Init_Kac 0.5
+
+#define Init_IntegralLimit Init_M_max * 0.8
 
 //----------------------------------------------- Internal Section ----------------------------------------------
 //------------------------------------------------- don't change ------------------------------------------------

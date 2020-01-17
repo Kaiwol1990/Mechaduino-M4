@@ -6,7 +6,7 @@
 #include "core/Controler.h"
 #include "core/State.h"
 #include "core/Utils.h"
-#include "core/Serial.h"
+//#include "core/Serial.h"
 #include "core/Planner.h"
 
 #include "modules/custommath.h"
@@ -15,8 +15,8 @@
 //#define MaxError 0.3
 
 //---- Step settings -----
-const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
-const float PA = 360.0 / Init_steps_per_revolution;                                 // angle of one fullstep as int
+//const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
+//const float PA = 360.0 / Init_steps_per_revolution;                                 // angle of one fullstep as int
 
 // ----- gets called with FPID -----
 // ----- calculates the target velocity and PID settings -----
@@ -38,7 +38,7 @@ void ControlerLoop()
   steps = mystepInterface.getsteps();
 
   // Motion planing
-  r = trapezodialSpline(stepangle * (float)steps);
+  r = trapezodialSpline(mySettings.stepangle * (float)steps);
 
   // omega target calculation
   omega = (r - r_1) * FPID;

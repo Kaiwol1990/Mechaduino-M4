@@ -9,7 +9,7 @@ class AS5047D
 {
 public:
   // public functions
-  AS5047D(uint16_t steps_per_revolution_, Stream *, EPortType port_, uint32_t pin_);
+  AS5047D(Stream *, EPortType port_, uint32_t pin_);
 
   // setup function
   void init(int16_t *fullsteps);

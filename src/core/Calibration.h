@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void calibration(int arg_cnt, char **args);
+void calibration();
 
 #endif

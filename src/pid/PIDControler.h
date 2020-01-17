@@ -14,44 +14,22 @@ public:
 
   void compute(); // Compute the output for the given Moment. Should be called with SampleTime
 
-  void setIntegrationalLimit(float_t); // Set the Limit of the Integrational Term
+  void tune(); // autotune the P,I,D gains
 
-  void setLimit(float_t); // Set the Limit of the Integrational Term
+  bool getState(); // get state of the controller
 
-  void setTunings(float_t, float_t, float_t); // Set the Tuning Parameters for the Controler
+  void setState(bool); // set state of the controller
 
-  void setTunings(float_t, float_t, float_t, float_t, float_t, float_t); // overload to set kf, kv, kac
+  float getError(); // get the current error
 
   void setSampleFreq(uint16_t); // set the sample time of the Controler
 
-  void setDir(bool); // poibility to invert the controler Output
-
-  void tune(); // autotune the P,I,D gains
-
-  // get and set functions
-  bool getState();
-  float getError();
-
-  float getKp();
-  float getKi();
-  float getKd();
-  float getKf();
-  float getKv();
-  float getKac();
-
-  void setKp(float _Kp);
-  void setKi(float _Ki);
-  void setKd(float _Kd);
-  void setKf(float _Kf);
-  void setKv(float _Kv);
-  void setKac(float _Kac);
+  void updateGains(); // disables the pid loop and load the current workspace settings to the controller
 
   void enable();
   void disable();
-  void setState(bool);
 
 private:
-  void calcLookup();
   void reset();
 
   float_t myKp;  // * (P)roportional Tuning Parameter
@@ -60,8 +38,6 @@ private:
   float_t myKf;  // * (F)riction Tuning Parameter
   float_t myKv;  // * (V)elocitiy feedforward gain
   float_t myKac; // * (AC)celeration feedforward gain
-
-  float_t kl; // anti windup LImit
 
   float_t *Input;    // * Pointers to the Input, Output, and Setpoint variables
   float_t *Output;   //   This creates a hard link between the variables and the
@@ -86,8 +62,6 @@ private:
   bool PIDenabled;
 
   float_t localOutput;
-
-  float_t tanhTable[200]; // Lookup Table for tanh values. Used to apply friction compensation
 };
 
 #endif

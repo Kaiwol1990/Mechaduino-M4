@@ -9,11 +9,14 @@
 
 #include "core/Controler.h"
 #include "core/State.h"
-#include "core/Serial.h"
-#include "core/Cmd.h"
 #include "core/Calibration.h"
 #include "core/boot.h"
 #include "core/Utils.h"
+#include "core/settings.h"
+
+#include "modules/Cmd.h"
+
+#include "commands/Serial.h"
 
 #include "language/en.h"
 
@@ -26,6 +29,33 @@ void boot()
   Serial.begin(Init_baudrate);
 
   delay(500);
+  Serial.println(" ");
+  Serial.println(" ");
+
+  // Load User settings from flash
+  if (!mySettings.isValid())
+  {
+    // only needed for first execution after compiling
+    mySettings.loadDefaultSettings();
+    mySettings.setDefaultSlot(0);
+    mySettings.storeSettings(0);
+    mySettings.commit();
+  }
+  else
+  {
+    mySettings.loadSettings(mySettings.defaultSlot);
+  }
+
+  // fullstep table
+  Serial.print("setup AS5047:");
+  if (!mySettings.checkFullsteps())
+  {
+    Serial.println("Fullsteps need to be calibrated!");
+  }
+  myAS5047D.init(mySettings.fullsteps.data);
+  myAS5047D.readDIAAGC();
+  myAS5047D.readERRFL();
+  Serial.println(" OK");
 
   Serial.println(" ");
   Serial.println(" ");
@@ -33,15 +63,9 @@ void boot()
   setupPins();
   Serial.println(" OK");
 
-  Serial.print("setup AS5047:");
-  myAS5047D.init(fullsteps);
-  myAS5047D.readDIAAGC();
-  myAS5047D.readERRFL();
-  Serial.println(" OK");
-
   Serial.print("setup A4954:");
   myA4954.init();
-  myA4954.setTorque(Init_I_rated, Init_M_max, Init_iMAX);
+  myA4954.setTorque(mySettings.currentSettings.Irated, mySettings.currentSettings.Mmax, mySettings.currentSettings.iMax);
   myA4954.output(0, 0);
   Serial.println(" OK");
 
@@ -53,7 +77,7 @@ void boot()
   setupTCInterrupts();
   Serial.println(" OK");
 
-  if (Init_USE_ENABLE_PIN)
+  if (mySettings.currentSettings.use_enable)
   {
     Serial.print("setup enable pin:");
     enaInterrupt();
@@ -66,9 +90,7 @@ void boot()
 
   Serial.print("setup PID Controller:");
   myPID.setSampleFreq(FPID);
-  myPID.setTunings(Init_Kp, Init_Ki, Init_Kd, Init_Kf, Init_Kv, Init_Kac);
-  myPID.setLimit(Init_M_max);
-  myPID.setIntegrationalLimit(Init_M_max * 0.8);
+  myPID.updateGains();
   Serial.println(" OK");
 
   Serial.print("setup controller:");

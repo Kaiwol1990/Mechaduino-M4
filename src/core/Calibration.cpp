@@ -1,9 +1,10 @@
 
 #include "core/Calibration.h"
-#include "core/Serial.h"
 #include "core/State.h"
 #include "core/Utils.h"
-#include "core/Cmd.h"
+#include "core/settings.h"
+
+#include "commands/Serial.h"
 
 #include "SAMD51/interrupts.h"
 
@@ -12,13 +13,14 @@
 #include "language/en.h"
 
 #include "modules/custommath.h"
+#include "modules/Cmd.h"
 
 #include "Configuration.h"
 
 #define effort 30.0
-const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
+//const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
 
-void calibration(int arg_cnt, char **args)
+void calibration()
 {
 
   //float calibCurrent = 700.0;
@@ -29,7 +31,6 @@ void calibration(int arg_cnt, char **args)
   myPID.disable();
 
   int avg = 100;
-  //bool debug = check_argument(args, arg_cnt, "-debug");
 
   Serial.println(calibrate_header);
   Serial.println();
@@ -166,30 +167,13 @@ void calibration(int arg_cnt, char **args)
   Serial.println(" -> done!");
 
   myA4954.outputOpenloop(0.0, 0.0);
-  // myA4954.outputOpenloop(0, 0, 0);
-  //  % % myA4954.writeDACs(0, 0);
+
   steps = 0;
   myPID.disable();
 
   /*
 
-    // the first fullstep is always alligned with the d axis
-    // therefore we calibrate all staps to this one
-    int16_t offset = fullsteps[0];
-    for (int32_t i = 0; i < steps_per_revolution; i++) {
-      fullsteps[i] = fullsteps[i] - offset;
-    }
-
-    // correction for now negative readings
-    for (int32_t i = 0; i < steps_per_revolution; i++) {
-      if (fullsteps[i] < 0) {
-        fullsteps[i] =  fullsteps[i] + 16384;
-      }
-    }
-  */
-
   // print full table to serial monitor
-
   Serial.println("");
   Serial.print("int16_t fullsteps[] ={");
   for (int i = 0; i < Init_steps_per_revolution; i++)
@@ -211,6 +195,10 @@ void calibration(int arg_cnt, char **args)
   Serial.println("};");
   Serial.println(" ");
   Serial.println(" ");
+*/
+
+  //mySettings.fullsteps.data = readings;
+  mySettings.saveFullsteps(readings);
 
   myAS5047D.initTable(readings);
 
