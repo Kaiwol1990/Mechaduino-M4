@@ -17,20 +17,20 @@
 
 //---- interrupt vars ----
 
-extern float r;       //target angle
-extern float y;       //current angle
-extern int32_t steps; //target step
+extern volatile float r;       //target angle
+extern volatile float y;       //current angle
+extern volatile int32_t steps; //target step
 
 extern float velLimit;
 extern float accLimit;
 
-extern float error; //error angle
+//extern float error; //error angle
 
-extern float u; // control effort
+extern volatile float u; // control effort
 
 extern float electric_angle;
 
-extern bool dir; // flag for  dir setting
+extern volatile bool dir; // flag for  dir setting
 //extern  bool enabled;     // flag for  enabled setting
 
 //---- lookup table for the encoder reading ----

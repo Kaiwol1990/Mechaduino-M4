@@ -8,7 +8,7 @@
 #define M_Pi 3.141592653589793115997963
 
 // CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
-PIDControler::PIDControler(float_t *Input_, float_t *Output_, float_t *Setpoint_)
+PIDControler::PIDControler(volatile float_t *Input_, volatile float_t *Output_, volatile float_t *Setpoint_)
 {
   Input = Input_;
   Output = Output_;

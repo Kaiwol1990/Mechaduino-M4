@@ -9,7 +9,7 @@ class PIDControler
 {
 
 public:
-  PIDControler(float_t *, float_t *, float_t *); // * constructor.  links the PID to the Input, Output, and
+  PIDControler(volatile float_t *, volatile float_t *, volatile float_t *); // * constructor.  links the PID to the Input, Output, and
   //   Setpoint. This allows for an automatic handling of the parameters
 
   void compute(); // Compute the output for the given Moment. Should be called with SampleTime
@@ -39,9 +39,9 @@ private:
   float_t myKv;  // * (V)elocitiy feedforward gain
   float_t myKac; // * (AC)celeration feedforward gain
 
-  float_t *Input;    // * Pointers to the Input, Output, and Setpoint variables
-  float_t *Output;   //   This creates a hard link between the variables and the
-  float_t *Setpoint; //   PID, freeing the user from having to constantly tell us
+  volatile float_t *Input;    // * Pointers to the Input, Output, and Setpoint variables
+  volatile float_t *Output;   //   This creates a hard link between the variables and the
+  volatile float_t *Setpoint; //   PID, freeing the user from having to constantly tell us
   //   what these values are.  with pointers we'll just know.
 
   float_t error;
