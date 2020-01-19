@@ -1,12 +1,19 @@
 #include <Arduino.h>
-#include "Cmd.h"
-#include "Configuration.h"
+#include "../Configuration.h"
+
+#include "modules/Cmd.h"
+#include "modules/strnatcmp.h"
 
 // command line message buffer and pointer
 static uint8_t msg[MAX_MSG_SIZE];
 static uint8_t *msg_ptr;
 
 static Stream *stream;
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
 
 SerialCommander::SerialCommander(Stream *str)
 {
@@ -20,6 +27,12 @@ void SerialCommander::cmd_display()
 {
   stream->println();
   stream->print(cmd_prompt);
+}
+
+void SerialCommander::init()
+{
+  SerialCommander::sortList();
+  SerialCommander::cmd_display();
 }
 
 /**************************************************************************/
@@ -238,4 +251,54 @@ bool SerialCommander::check_argument(const char *identifier)
     }
   }
   return false;
+}
+
+void SerialCommander::sortList()
+{
+  const char *name;
+  char *cmd_name[100];
+
+  // extract commadns from buffer
+  for (uint8_t i = 0; i < cmdCount; i++)
+  {
+    name = cmdBuffer[i].cmd;
+    // alloc memory for command name
+    cmd_name[i] = (char *)malloc(strlen(name) + 1);
+
+    // copy command name and description
+    strcpy(cmd_name[i], name);
+  }
+
+  //Sorting the commands in the buffer with sort nat
+  qsort(cmd_name, cmdCount, sizeof cmd_name[0], compare_strings);
+
+  // copy original cmdBuffer
+  cmd_t tempBuffer[50];
+  for (uint8_t i = 0; i < cmdCount; i++)
+  {
+    tempBuffer[i] = cmdBuffer[i];
+  }
+
+  // resort cmdBuffer with the sorted commands
+  for (uint8_t i = 0; i < cmdCount; i++)
+  {
+    // search for corresponding cmd_t entry
+    for (uint8_t k = 0; k < cmdCount; k++)
+    {
+      if (!strcmp(cmd_name[i], tempBuffer[k].cmd))
+      {
+        cmdBuffer[i] = tempBuffer[k];
+      }
+    }
+  }
+}
+
+static int compare_strings(const void *a, const void *b)
+{
+  char const *pa = *(char const **)a, *pb = *(char const **)b;
+  int ret;
+
+  ret = strnatcmp(pa, pb);
+
+  return ret;
 }

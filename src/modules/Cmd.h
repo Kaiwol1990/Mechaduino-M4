@@ -25,6 +25,8 @@ class SerialCommander
 public:
   SerialCommander(Stream *);
 
+  void init();
+
   void cmdPoll();
 
   void cmdAdd(const char *name, const char *description, void (*func)());
@@ -39,6 +41,8 @@ public:
 
   bool check_argument(const char *identifier);
 
+  void sortList();
+
 private:
   char *args[30];
   uint8_t arg_cnt;
@@ -47,11 +51,13 @@ private:
   uint8_t cmdCount;
 
   // Buffer to hold up to 100 commands
-  cmd_t cmdBuffer[100];
+  cmd_t cmdBuffer[50];
 
   void cmd_handler(char c);
   void cmd_parse(char *cmd);
   void cmd_display();
 };
+
+static int compare_strings(const void *a, const void *b);
 
 #endif //CMD_H

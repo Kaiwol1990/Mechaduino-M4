@@ -8,9 +8,8 @@
 // struct of one single user setting slot
 typedef struct
 {
-    float iMax;
+    // controller / user settings
     float Mmax;
-    float Irated;
     float Kp;
     float Ki;
     float Kd;
@@ -18,10 +17,13 @@ typedef struct
     float Kv;
     float Kac;
     float IntegralLimit;
-    uint16_t steps_per_Revolution;
     uint16_t microstepping;
-    uint16_t beta;
 
+    // hardware settings
+    uint16_t beta;
+    float iMax;
+    float Irated;
+    uint16_t steps_per_Revolution;
     bool use_enable;
     bool invert;
 

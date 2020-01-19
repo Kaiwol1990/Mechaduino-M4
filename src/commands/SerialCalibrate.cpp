@@ -11,10 +11,5 @@
 void init_calibrate_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd(calibrate_command, "start calibration routine", cmd_calibration);
-}
-
-void cmd_calibration()
-{
-  calibration();
+  myCommander.cmdAdd(calibrate_command, "start calibration routine", calibration);
 }

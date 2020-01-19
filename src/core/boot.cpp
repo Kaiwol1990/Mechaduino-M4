@@ -115,10 +115,11 @@ void boot()
   Serial.println(firmware_version);
 
   init_menu();
+  myCommander.init();
   /*
   cmdInit(&Serial);
   */
-
+  /*
   Serial.println("");
-  Serial.print("CMD >> ");
+  Serial.print("CMD >> ");*/
 }

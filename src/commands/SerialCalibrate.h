@@ -5,6 +5,4 @@
 
 void init_calibrate_menu();
 
-void cmd_calibration();
-
 #endif
