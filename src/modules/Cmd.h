@@ -58,6 +58,4 @@ private:
   void cmd_display();
 };
 
-static int compare_strings(const void *a, const void *b);
-
 #endif //CMD_H

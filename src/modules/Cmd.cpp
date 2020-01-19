@@ -292,13 +292,3 @@ void SerialCommander::sortList()
     }
   }
 }
-
-static int compare_strings(const void *a, const void *b)
-{
-  char const *pa = *(char const **)a, *pb = *(char const **)b;
-  int ret;
-
-  ret = strnatcmp(pa, pb);
-
-  return ret;
-}
