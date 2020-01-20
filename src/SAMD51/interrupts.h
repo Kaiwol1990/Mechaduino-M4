@@ -1,5 +1,7 @@
 
 
+#include <Arduino.h>
+
 #ifndef _INTERRUPTS_H_
 #define _INTERRUPTS_H_
 
@@ -13,14 +15,28 @@
         ;
 #endif
 
-void setupTCInterrupts();
+class samd51TC4
+{
 
-void enableTC5Interrupts();
+public:
+    samd51TC4(int _frequency, void (*func)());
 
-void disableTC4Interrupts();
+    void setup();
 
-void disableTC5Interrupts();
+    void enable();
 
-//void TC4_Handler() __attribute__ ((optimize("O3")));
+    void disable();
+
+    void disableTC5Interrupts();
+
+    void (*Intteruptfunc)(); // point to the wanted interrupt function
+
+private:
+    int frequency;
+
+    void calcOVF();
+
+    void resetTC(Tc *TCx);
+};
 
 #endif

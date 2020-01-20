@@ -1,37 +1,78 @@
 
 #include "SAMD51/interrupts.h"
-#include "core/Controler.h"
+//#include "core/Controler.h"
+#include "core/State.h"
 
 #include "Configuration.h"
 
 #include <SPI.h>
 #include <Arduino.h>
 
-static inline void resetTC(Tc *TCx)
+samd51TC4::samd51TC4(int _frequency, void (*_func)())
 {
-  // Disable TCx
-  TCx->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
-  WAIT_TC16_REGS_SYNC(TCx)
-
-  // Reset TCx
-  TCx->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
-  WAIT_TC16_REGS_SYNC(TCx)
-  while (TCx->COUNT16.CTRLA.bit.SWRST)
-    ;
+  frequency = _frequency;
+  Intteruptfunc = _func;
 }
 
-void setupTCInterrupts()
+void samd51TC4::setup()
 {
-  int overflow_TC_5 = (F_CPU / FPID) - 1;
+  calcOVF();
+
+  NVIC_SetPriority(TC4_IRQn, 0);
+
+  TC4->COUNT16.INTENSET.bit.MC0 = 1;
+
+  //enable();
+
+  // Enable InterruptVector
+  NVIC_EnableIRQ(TC4_IRQn);
+}
+
+void samd51TC4::enable()
+{
+  // ----- enables the main PID and measuring loop -----
+  TC4->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE; //Enable TC4
+  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
+    ; // wait for sync
+}
+
+void samd51TC4::disable()
+{
+  // ----- disables the main PID loop -----
+  TC4->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE; // Disable TC4
+  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
+    ; // wait for sync
+}
+
+// ----- gets called with FPID -----
+// ----- calculates the target velocity and PID settings -----
+void TC4_Handler()
+{
+  //----- Calculations -----
+  if (TC4->COUNT16.INTFLAG.bit.OVF == 1)
+  { // A overflow caused the interrupt
+    mysamd51TC4.Intteruptfunc();
+    //ControlerLoop();
+
+    // Reset overflow flag
+    TC4->COUNT16.INTFLAG.bit.MC0 = 1;
+  }
+}
+
+///// PRIVATE
+
+void samd51TC4::calcOVF()
+{
+  int overflow_TC = (F_CPU / frequency) - 1;
 
   uint16_t RangeUint16 = 65535;
-  uint32_t prescalerConfigBits;
+  uint32_t prescalerConfigBits = TC_CTRLA_PRESCALER_DIV1;
   int i = 0;
 
-  while (overflow_TC_5 > RangeUint16)
+  while (overflow_TC > RangeUint16)
   {
     i++;
-    overflow_TC_5 = ((F_CPU / FPID) / (2 << (i - 1))) - 1;
+    overflow_TC = ((F_CPU / FPID) / (2 << (i - 1))) - 1;
   }
 
   if (i == 5 || i == 7 || i == 9)
@@ -45,16 +86,16 @@ void setupTCInterrupts()
 
   if (i > 0)
   {
-    overflow_TC_5 = ((F_CPU / FPID) / (2 << (i - 1))) - 1;
+    overflow_TC = ((F_CPU / FPID) / (2 << (i - 1))) - 1;
   }
   else
   {
-    overflow_TC_5 = (F_CPU / FPID) - 1;
+    overflow_TC = (F_CPU / FPID) - 1;
   }
 
-  if (overflow_TC_5 > RangeUint16)
+  if (overflow_TC > RangeUint16)
   {
-    overflow_TC_5 = RangeUint16;
+    overflow_TC = RangeUint16;
     Serial.println("Samplerate nicht möglich. Maximaler Prescaler erreicht!");
   }
 
@@ -114,55 +155,23 @@ void setupTCInterrupts()
   tmpReg |= prescalerConfigBits;
   TC4->COUNT16.CTRLA.reg |= tmpReg;
 
-  TC4->COUNT16.CC[0].reg = (uint16_t)overflow_TC_5;
+  TC4->COUNT16.CC[0].reg = (uint16_t)overflow_TC;
   while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
     ; // wait for sync
 
   TC4->COUNT16.INTENSET.bit.OVF = 1; // set overflow
-
-  NVIC_SetPriority(TC4_IRQn, 0);
-
-  TC4->COUNT16.INTENSET.bit.MC0 = 1;
-  TC4->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE;
-
-  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
-    ; // wait for sync
-
-  // Enable InterruptVector
-  NVIC_EnableIRQ(TC4_IRQn);
 }
 
-void enableTC5Interrupts()
+// external
+void samd51TC4::resetTC(Tc *TCx)
 {
-  // ----- enables the main PID and measuring loop -----
-  TC4->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE; //Enable TC4
-  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
-    ; // wait for sync
-  //WAIT_TC16_REGS_SYNC(TC4)                      //wait for sync
-}
+  // Disable TCx
+  TCx->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
+  WAIT_TC16_REGS_SYNC(TCx)
 
-void disableTC5Interrupts()
-{
-  // ----- disables the main PID loop -----
-  //resetTC(TC4);
-  TC4->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE; // Disable TC4
-  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
-    ; // wait for sync
-  // WAIT_TC16_REGS_SYNC(TC4)                      // wait for sync
-}
-
-// ----- gets called with FPID -----
-// ----- calculates the target velocity and PID settings -----
-void TC4_Handler()
-{
-
-  //----- Calculations -----
-  if (TC4->COUNT16.INTFLAG.bit.OVF == 1)
-  { // A overflow caused the interrupt
-
-    ControlerLoop();
-
-    // Reset overflow flag
-    TC4->COUNT16.INTFLAG.bit.MC0 = 1;
-  }
+  // Reset TCx
+  TCx->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
+  WAIT_TC16_REGS_SYNC(TCx)
+  while (TCx->COUNT16.CTRLA.bit.SWRST)
+    ;
 }

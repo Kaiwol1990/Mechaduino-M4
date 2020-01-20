@@ -27,7 +27,7 @@ void calibration()
   float currentAngle = 0.0;
   float currentAngle_1 = 0.0;
 
-  disableTC5Interrupts();
+  mysamd51TC4.disable(); //disableTC5Interrupts();
   myPID.disable();
 
   int avg = 100;
@@ -79,7 +79,7 @@ void calibration()
   {
     Serial.println("Wired backwards");
     myPID.disable();
-    enableTC5Interrupts();
+    mysamd51TC4.enable(); //enableTC5Interrupts();
     return;
   }
 
@@ -203,5 +203,5 @@ void calibration()
   myAS5047D.initTable(readings);
 
   myPID.disable();
-  enableTC5Interrupts();
+  mysamd51TC4.enable(); //enableTC5Interrupts();
 }

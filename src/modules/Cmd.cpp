@@ -15,11 +15,13 @@ static Stream *stream;
 #include <string.h>
 #include <getopt.h>
 
-SerialCommander::SerialCommander(Stream *str)
+SerialCommander::SerialCommander(Stream *str, void (*_Initfunc)())
 {
   stream = str;
   msg_ptr = msg;
   cmdCount = 0;
+
+  initFunction = _Initfunc;
 }
 
 //Generate the main command prompt
@@ -33,6 +35,7 @@ void SerialCommander::init()
 {
   SerialCommander::sortList();
   SerialCommander::cmd_display();
+  SerialCommander::initFunction();
 }
 
 /**************************************************************************/

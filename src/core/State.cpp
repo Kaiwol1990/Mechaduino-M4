@@ -3,7 +3,9 @@
 #include "../Configuration.h"
 
 #include "core/State.h"
+#include "core/Controler.h"
 #include "SAMD51/board.h"
+#include "commands/Serial.h"
 
 //---- interrupt vars ----
 volatile byte mode = 0;
@@ -34,4 +36,6 @@ stepInterface mystepInterface(step_pin, dir_pin, ena_pin, Init_steps_per_revolut
 
 userSettings mySettings;
 
-SerialCommander myCommander(&Serial);
+SerialCommander myCommander(&Serial, init_menu);
+
+samd51TC4 mysamd51TC4(FPID, ControlerLoop);

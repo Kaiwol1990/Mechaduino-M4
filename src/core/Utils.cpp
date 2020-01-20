@@ -25,7 +25,7 @@ void enaInterrupt()
 int measure_noise()
 {
 
-  disableTC5Interrupts();
+  mysamd51TC4.disable(); //disableTC5Interrupts();
 
   delay(100);
   int counter = 0;
@@ -90,6 +90,6 @@ int measure_noise()
     }
   }
 
-  enableTC5Interrupts();
+  mysamd51TC4.enable(); // enableTC5Interrupts();
   return abs((abs(highest) - abs(lowest)));
 }

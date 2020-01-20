@@ -22,12 +22,7 @@
 
 void boot()
 {
-
-  // FIXME
-  // Load from eeprom instead of init hardcoded values if possible
-
   Serial.begin(Init_baudrate);
-
   delay(500);
   Serial.println(" ");
   Serial.println(" ");
@@ -53,12 +48,10 @@ void boot()
     Serial.println("Fullsteps need to be calibrated!");
   }
   myAS5047D.init(mySettings.fullsteps.data);
-  myAS5047D.readDIAAGC();
-  myAS5047D.readERRFL();
+  //myAS5047D.readDIAAGC();
+  //myAS5047D.readERRFL();
   Serial.println(" OK");
 
-  Serial.println(" ");
-  Serial.println(" ");
   Serial.print("setup pins:");
   setupPins();
   Serial.println(" OK");
@@ -73,28 +66,25 @@ void boot()
   mystepInterface.setup();
   Serial.println(" OK");
 
-  Serial.print("setup Interrupts:");
-  setupTCInterrupts();
-  Serial.println(" OK");
-
   if (mySettings.currentSettings.use_enable)
   {
     Serial.print("setup enable pin:");
     enaInterrupt();
+    Serial.println(" OK");
   }
   else
   {
     //myPID.enable();
   }
-  Serial.println(" OK");
 
   Serial.print("setup PID Controller:");
   myPID.setSampleFreq(FPID);
   myPID.updateGains();
   Serial.println(" OK");
 
-  Serial.print("setup controller:");
-  enableTC5Interrupts();
+  Serial.print("setup Interrupts:");
+  mysamd51TC4.setup();
+  mysamd51TC4.enable();
   Serial.println(" OK");
 
   Serial.println(bootscreen_1);
@@ -114,12 +104,5 @@ void boot()
   Serial.print("   firmware-version: ");
   Serial.println(firmware_version);
 
-  init_menu();
   myCommander.init();
-  /*
-  cmdInit(&Serial);
-  */
-  /*
-  Serial.println("");
-  Serial.print("CMD >> ");*/
 }

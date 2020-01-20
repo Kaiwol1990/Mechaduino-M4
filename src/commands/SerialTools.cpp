@@ -72,7 +72,7 @@ void get_max_frequency()
     Serial.println(" ");
     return;
   }
-  disableTC5Interrupts();
+  mysamd51TC4.disable(); //disableTC5Interrupts();
 
   uint32_t max_counter = 10000;
   float frequency[10];
@@ -115,5 +115,5 @@ void get_max_frequency()
 
   Serial.print("Overalltime [s] = ");
   Serial.println((float)(micros() - starting_test) / 1000000.0);
-  enableTC5Interrupts();
+  mysamd51TC4.enable(); //enableTC5Interrupts();
 }

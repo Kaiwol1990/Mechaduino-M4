@@ -23,7 +23,7 @@ typedef struct _cmd_t
 class SerialCommander
 {
 public:
-  SerialCommander(Stream *);
+  SerialCommander(Stream *, void (*_Initfunc)());
 
   void init();
 
@@ -44,6 +44,7 @@ public:
   void sortList();
 
 private:
+  void (*initFunction)();
   char *args[30];
   uint8_t arg_cnt;
 
