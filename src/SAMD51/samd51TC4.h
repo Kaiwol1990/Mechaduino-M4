@@ -27,7 +27,7 @@ public:
 
     void disableTC5Interrupts();
 
-    void (*Intteruptfunc)(); // point to the wanted interrupt function
+    void (*Intteruptfunc)(); // pointer to the wanted interrupt function
 
 private:
     int frequency;

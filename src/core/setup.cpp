@@ -25,8 +25,23 @@ void setup()
   delay(500);
   Serial.println(" ");
   Serial.println(" ");
+  Serial.println(bootscreen_01);
+  Serial.println(bootscreen_02);
+  Serial.println(bootscreen_03);
+  Serial.println(bootscreen_04);
+  Serial.println(bootscreen_05);
+  Serial.println(bootscreen_06);
+  Serial.println(bootscreen_07);
+  Serial.println(bootscreen_08);
+  Serial.println(bootscreen_09);
+  Serial.println(bootscreen_10);
+  Serial.println(bootscreen_11);
+  Serial.println(bootscreen_12);
+  Serial.println(" ");
+  Serial.println(" ");
 
   // Load User settings from flash
+  Serial.print("setup user settings: ");
   if (!mySettings.isValid())
   {
     // only needed for first execution after compiling
@@ -41,74 +56,59 @@ void setup()
   }
 
   // fullstep table
-  Serial.print("setup AS5047:");
+  Serial.print("setup AS5047: ");
+  myAS5047D.init(mySettings.fullsteps.data);
+
   if (!mySettings.checkFullsteps())
   {
     Serial.println("Fullsteps need to be calibrated!");
   }
-  myAS5047D.init(mySettings.fullsteps.data);
-  //myAS5047D.readDIAAGC();
-  //myAS5047D.readERRFL();
-  Serial.println(" OK");
+  else
+  {
+    Serial.println(" OK");
+  }
 
-  Serial.print("setup pins:");
+  Serial.print("setup pins: ");
   setupPins();
-  Serial.println(" OK");
+  Serial.println("OK");
 
-  Serial.print("setup A4954:");
+  Serial.print("setup A4954: ");
   myA4954.init();
   myA4954.setTorque(mySettings.currentSettings.Irated, mySettings.currentSettings.Mmax, mySettings.currentSettings.iMax);
   myA4954.output(0, 0);
   Serial.println(" OK");
 
-  Serial.print("setup StepInterface:");
+  Serial.print("setup StepInterface: ");
   mystepInterface.setup();
-  Serial.println(" OK");
+  Serial.println("OK");
 
   if (mySettings.currentSettings.use_enable)
   {
-    Serial.print("setup enable pin:");
+    Serial.print("setup enable pin: ");
     enaInterrupt();
-    Serial.println(" OK");
+    Serial.println("OK");
   }
   else
   {
     //myPID.enable();
   }
 
-  Serial.print("setup ADC state machine");
+  Serial.print("setup ADC state machine: ");
   mysamd51ADCSM.init();
-  Serial.println(" OK");
+  Serial.println("OK");
 
-  Serial.print("setup PID Controller:");
+  Serial.print("setup PID Controller: ");
   myPID.setSampleFreq(FPID);
   myPID.updateGains();
-  Serial.println(" OK");
+  Serial.println("OK");
 
-  Serial.print("setup Interrupts:");
+  Serial.print("setup Interrupts: ");
   mysamd51TC4.setup();
   mysamd51TC4.enable();
 
   mysamd51TC5.setup();
   mysamd51TC5.enable();
-  Serial.println(" OK");
-
-  Serial.println(bootscreen_1);
-  Serial.println(bootscreen_2);
-  Serial.println(bootscreen_3);
-  Serial.println(bootscreen_4);
-  Serial.println(bootscreen_5);
-  Serial.println(bootscreen_6);
-  Serial.println(bootscreen_7);
-  Serial.println(bootscreen_8);
-  Serial.println(bootscreen_9);
-  Serial.println(bootscreen_10);
-
-  Serial.print("   compiling date: ");
-  Serial.println(__DATE__);
-
-  Serial.print("   firmware-version: ");
-  Serial.println(firmware_version);
+  Serial.println("OK");
 
   myCommander.init();
 }
