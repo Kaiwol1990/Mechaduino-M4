@@ -92,7 +92,7 @@ void A4954::output(float angle, float effort)
   }
 
   // calculate the electrical poleangle of the current rotor position * * * * * * * * * * * * * * * * * * * * *
-  lookupIdx = ((effort * 400.0) / tMax) + 100.5;
+  lookupIdx = ((effort * 100.0) / tMax) + 100.5;
   if (lookupIdx > 199)
   {
     lookupIdx = 199;

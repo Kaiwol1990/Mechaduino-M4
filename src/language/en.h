@@ -1,6 +1,8 @@
 #ifndef __LANGUAGE_H__
 #define __LANGUAGE_H__
 
+#define ProductName "Mechaduino M4"
+
 #define help_command "help"
 #define help_menu "prints this menu"
 #define help_header "//---- Mainmenu -----"
@@ -65,15 +67,15 @@
 
 #define procent_bar "|---+----+----+----+----+----+----+----+----+----|"
 
-#define bootscreen_1 "###################################################################################"
-#define bootscreen_2 "#                                                                                 #"
-#define bootscreen_3 "#  ##   ##  ######  ####   ##  ##   ####   #####   ##  ##  ######  ##  ##   ####  #"
-#define bootscreen_4 "#  ### ###  ##     ##  ##  ##  ##  ##  ##  ##  ##  ##  ##    ##    ### ##  ##  ## #"
-#define bootscreen_5 "#  ## # ##  ####   ##      ######  ######  ##  ##  ##  ##    ##    ## ###  ##  ## #"
-#define bootscreen_6 "#  ##   ##  ##     ##  ##  ##  ##  ##  ##  ##  ##  ##  ##    ##    ##  ##  ##  ## #"
-#define bootscreen_7 "#  ##   ##  ######  ####   ##  ##  ##  ##  #####    ####   ######  ##  ##   ####  #"
-#define bootscreen_8 "#                                                                                 #"
-#define bootscreen_9 "###################################################################################"
-#define bootscreen_10 "  open-source industrial servo motor by Tropical Labs       written by Kai Wolter  "
+#define bootscreen_1 "##########################################################################################################"
+#define bootscreen_2 "#                                                                                                        #"
+#define bootscreen_3 "#  ##   ##  ######  ####   ##  ##   ####   #####   ##  ##  ######  ##  ##   ####       ##   ## ##    ##  #"
+#define bootscreen_4 "#  ### ###  ##     ##  ##  ##  ##  ##  ##  ##  ##  ##  ##    ##    ### ##  ##  ##      ### ### ##    ##  #"
+#define bootscreen_5 "#  ## # ##  ####   ##      ######  ######  ##  ##  ##  ##    ##    ## ###  ##  ##      ## # ## ######### #"
+#define bootscreen_6 "#  ##   ##  ##     ##  ##  ##  ##  ##  ##  ##  ##  ##  ##    ##    ##  ##  ##  ##      ##   ##       ##  #"
+#define bootscreen_7 "#  ##   ##  ######  ####   ##  ##  ##  ##  #####    ####   ######  ##  ##   ####       ##   ##       ##  #"
+#define bootscreen_8 "#                                                                                                        #"
+#define bootscreen_9 "##########################################################################################################"
+#define bootscreen_10 " open-source industrial servo motor by Tropical Labs                               written by Kai Wolter "
 
 #endif

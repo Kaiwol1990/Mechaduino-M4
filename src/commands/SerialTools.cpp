@@ -7,7 +7,8 @@
 #include "language/en.h"
 
 #include "core/Controler.h"
-#include "SAMD51/interrupts.h"
+#include "SAMD51/samd51TC4.h"
+#include "SAMD51/samd51TC5.h"
 
 void init_tools_menu()
 {
@@ -110,7 +111,7 @@ void get_max_frequency()
 
   Serial.print("Mean frequency [Hz] = ");
   Serial.println(mean);
-  Serial.print("execution time = ");
+  Serial.print("execution time [ns] = ");
   Serial.println(1000000.0 / mean);
 
   Serial.print("Overalltime [s] = ");

@@ -1,7 +1,7 @@
 
 
 #include "SAMD51/board.h"
-#include "SAMD51/interrupts.h"
+#include "SAMD51/samd51TC4.h"
 
 #include "core/State.h"
 #include "core/Utils.h"

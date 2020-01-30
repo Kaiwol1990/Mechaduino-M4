@@ -108,8 +108,6 @@ void userSettings::loadDefaultSettings()
   updateSettings();
 }
 
-
-
 void userSettings::plotSettings(int8_t slot)
 {
   settings_t workingContent;

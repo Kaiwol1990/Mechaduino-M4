@@ -33,9 +33,9 @@ void SerialCommander::cmd_display()
 
 void SerialCommander::init()
 {
+  SerialCommander::initFunction();
   SerialCommander::sortList();
   SerialCommander::cmd_display();
-  SerialCommander::initFunction();
 }
 
 /**************************************************************************/

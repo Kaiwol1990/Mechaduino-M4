@@ -13,7 +13,9 @@
 #include "pid/PIDControler.h"
 #include "modules/filters.h"
 #include "SAMD51/stepInterface.h"
-#include "SAMD51/interrupts.h"
+#include "SAMD51/samd51TC4.h"
+#include "SAMD51/samd51TC5.h"
+#include "SAMD51/samd51ADCSM.h"
 #include "modules/Cmd.h"
 
 //---- interrupt vars ----
@@ -50,5 +52,9 @@ extern userSettings mySettings;
 extern SerialCommander myCommander;
 
 extern samd51TC4 mysamd51TC4;
+
+extern samd51TC5 mysamd51TC5;
+
+extern samd51ADCSM mysamd51ADCSM;
 
 #endif

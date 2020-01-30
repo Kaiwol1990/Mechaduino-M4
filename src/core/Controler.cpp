@@ -65,8 +65,11 @@ void ControlerLoop()
   // write output
   myA4954.output(y + phaseAdvanced, u);
 
-  // Motor Voltage and Coil Temp check
-  //AnalogReadStateMachine();
-
   r_1 = r;
+}
+
+void StateMachine()
+{
+  // Motor Voltage and Coil Temp check
+  mysamd51ADCSM.step();
 }

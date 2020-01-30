@@ -15,8 +15,9 @@
 #define step_pin (0) //PA23 -> D0
 #define dir_pin (1)  //PA22 -> D1
 #define ena_pin (2)  //PB17 -> D2
-#define V_pin (0)    //PA10 -> NC
 
-#define TH1 (0) //PA07 -> NC
+#define V_pin PORT_PA10 //PA10 -> AIN 10
+
+#define TH_pin PORT_PA07 //PA07 -> AIN 7
 
 #endif //__BOARD_H__

@@ -12,6 +12,7 @@
 #include "commands/SerialPID.h"
 #include "commands/SerialTools.h"
 #include "commands/SerialCalibrate.h"
+#include "commands/SerialSensors.h"
 
 void init_menu()
 {
@@ -22,6 +23,7 @@ void init_menu()
   init_pid_menu();
   init_tools_menu();
   init_calibrate_menu();
+  init_sensor_menu();
 }
 
 //void Serial_menu()

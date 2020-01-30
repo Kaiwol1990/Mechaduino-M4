@@ -6,7 +6,7 @@
 
 #include "commands/Serial.h"
 
-#include "SAMD51/interrupts.h"
+#include "SAMD51/samd51TC4.h"
 
 #include "OUTPUT/A4954.h"
 #include "Configuration.h"
@@ -22,6 +22,15 @@
 
 void calibration()
 {
+
+  // check if motor voltage is high enough
+  if (mysamd51ADCSM.getV() < 10.0)
+  {
+    Serial.println("The Voltage of the MEchaduino M4 is below 10 V!");
+    Serial.println("Please make sure to plugin the power supply!");
+    Serial.println("-> abbort");
+    return;
+  }
 
   //float calibCurrent = 700.0;
   float currentAngle = 0.0;

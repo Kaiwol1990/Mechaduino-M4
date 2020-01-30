@@ -21,23 +21,15 @@
 
 */
 
-#include "core/boot.h"
-
-//git p#include "modules/Cmd.h"
 #include "core/State.h"
-
-// -------------------------------------
-// -               setup               -
-// -------------------------------------
-void setup()
-{
-  boot();
-}
 
 // -------------------------------------
 // -               loop                -
 // -------------------------------------
 void loop()
 {
+
+  // nothing to do here
+  // all commands are handled via TC interrupts
   myCommander.cmdPoll();
 }

@@ -1,16 +1,15 @@
 //Contains the definitions of the functions used by the firmware.
-#include <SPI.h>
-#include <Arduino.h>
 #include "../Configuration.h"
 
 #include "SAMD51/board.h"
-#include "SAMD51/interrupts.h"
 #include "SAMD51/setup.h"
+#include "SAMD51/samd51TC4.h"
+#include "SAMD51/samd51TC5.h"
 
 #include "core/Controler.h"
 #include "core/State.h"
 #include "core/Calibration.h"
-#include "core/boot.h"
+#include "core/setup.h"
 #include "core/Utils.h"
 #include "core/settings.h"
 
@@ -20,7 +19,7 @@
 
 #include "language/en.h"
 
-void boot()
+void setup()
 {
   Serial.begin(Init_baudrate);
   delay(500);
@@ -77,6 +76,10 @@ void boot()
     //myPID.enable();
   }
 
+  Serial.print("setup ADC state machine");
+  mysamd51ADCSM.init();
+  Serial.println(" OK");
+
   Serial.print("setup PID Controller:");
   myPID.setSampleFreq(FPID);
   myPID.updateGains();
@@ -85,6 +88,9 @@ void boot()
   Serial.print("setup Interrupts:");
   mysamd51TC4.setup();
   mysamd51TC4.enable();
+
+  mysamd51TC5.setup();
+  mysamd51TC5.enable();
   Serial.println(" OK");
 
   Serial.println(bootscreen_1);

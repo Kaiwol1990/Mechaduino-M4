@@ -5,4 +5,6 @@
 
 void ControlerLoop() __attribute__((optimize("O3")));
 
+void StateMachine() __attribute__((optimize("O3")));
+
 #endif

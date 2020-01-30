@@ -39,3 +39,7 @@ userSettings mySettings;
 SerialCommander myCommander(&Serial, init_menu);
 
 samd51TC4 mysamd51TC4(FPID, ControlerLoop);
+
+samd51TC5 mysamd51TC5(250, StateMachine);
+
+samd51ADCSM mysamd51ADCSM;
