@@ -51,6 +51,6 @@
 #define firmware_version "0.4"
 
 // frequency of the PID loop change only if you know what you're doing
-#define FPID 16000.0
+#define FPID 32000.0
 
 #endif
