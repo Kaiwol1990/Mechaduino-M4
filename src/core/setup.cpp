@@ -103,10 +103,12 @@ void setup()
   Serial.println("OK");
 
   Serial.print("setup Interrupts: ");
+  //mysamd51TC0.setup();
   mysamd51TC4.setup();
-  mysamd51TC4.enable();
-
   mysamd51TC5.setup();
+
+  // mysamd51TC0.enable();
+  mysamd51TC4.enable();
   mysamd51TC5.enable();
   Serial.println("OK");
 

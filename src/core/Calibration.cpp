@@ -1,24 +1,11 @@
 
 #include "core/Calibration.h"
 #include "core/State.h"
-#include "core/Utils.h"
-#include "core/settings.h"
-
-#include "commands/Serial.h"
-
-#include "SAMD51/samd51TC4.h"
 
 #include "OUTPUT/A4954.h"
-#include "Configuration.h"
 #include "language/en.h"
 
-#include "modules/custommath.h"
-#include "modules/Cmd.h"
-
-#include "Configuration.h"
-
 #define effort 30.0
-//const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
 
 void calibration()
 {
@@ -36,7 +23,8 @@ void calibration()
   float currentAngle = 0.0;
   float currentAngle_1 = 0.0;
 
-  mysamd51TC4.disable(); //disableTC5Interrupts();
+  mysamd51TC4.disable();
+  mysamd51TC5.disable();
   myPID.disable();
 
   int avg = 100;
@@ -50,7 +38,7 @@ void calibration()
   //dir = true;
   //  enabled = true;
   //myPID.enable();
-  steps = 0;
+  //steps = 0;
   //myA4954.outputOpenloop(0.0, M_max * 0.5);
   //myA4954.writeDACS(0, M_max * 0.5);
   myA4954.output(0, effort);
@@ -67,7 +55,7 @@ void calibration()
 
   for (int i = 0; i < 4; i++)
   {
-    currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
+    currentAngle = currentAngle + (360.0 / mySettings.currentSettings.steps_per_Revolution);
     for (int i = 0; i < 100; i++)
     {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
@@ -94,7 +82,7 @@ void calibration()
 
   for (int i = 0; i < 4; i++)
   {
-    currentAngle = currentAngle - (360.0 / Init_steps_per_revolution);
+    currentAngle = currentAngle - (360.0 / mySettings.currentSettings.steps_per_Revolution);
     for (int i = 0; i < 100; i++)
     {
       myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
@@ -106,17 +94,16 @@ void calibration()
   Serial.println("Calibrating fullsteps");
   Serial.println(procent_bar);
   int counter = 0;
-  int count = Init_steps_per_revolution / 50;
+  int count = mySettings.currentSettings.steps_per_Revolution / 50;
   dir = true;
 
-  int16_t readings[(int)Init_steps_per_revolution];
+  int16_t readings[(int)mySettings.currentSettings.steps_per_Revolution];
 
   int temp_reading = myAS5047D.readDigits();
   int last_reading = temp_reading;
 
-  steps = 0;
   // step to every single fullstep position and read the Encoder
-  for (int i = 0; i < Init_steps_per_revolution; i++)
+  for (int i = 0; i < mySettings.currentSettings.steps_per_Revolution; i++)
   {
 
     counter += 1;
@@ -165,11 +152,11 @@ void calibration()
     }
 
     // increment angle one step
-    currentAngle = currentAngle + (360.0 / Init_steps_per_revolution);
-    for (int i = 0; i < 100; i++)
+    currentAngle = currentAngle + (360.0 / mySettings.currentSettings.steps_per_Revolution);
+    for (int i = 0; i < 1000; i++)
     {
-      myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
-      delayMicroseconds(250);
+      myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 1000.0), effort);
+      delayMicroseconds(25);
     }
     currentAngle_1 = currentAngle;
   }
@@ -177,40 +164,13 @@ void calibration()
 
   myA4954.outputOpenloop(0.0, 0.0);
 
-  steps = 0;
   myPID.disable();
 
-  /*
-
-  // print full table to serial monitor
-  Serial.println("");
-  Serial.print("int16_t fullsteps[] ={");
-  for (int i = 0; i < Init_steps_per_revolution; i++)
-  {
-    Serial.print(readings[i]);
-
-    if (i < Init_steps_per_revolution - 1)
-    {
-      if ((mod(i, 25) == 0) & (i > 0))
-      {
-        Serial.println(",");
-      }
-      else
-      {
-        Serial.print(",");
-      }
-    }
-  }
-  Serial.println("};");
-  Serial.println(" ");
-  Serial.println(" ");
-*/
-
-  //mySettings.fullsteps.data = readings;
   mySettings.saveFullsteps(readings);
 
   myAS5047D.initTable(readings);
 
   myPID.disable();
   mysamd51TC4.enable(); //enableTC5Interrupts();
+  mysamd51TC5.enable(); //enableTC5Interrupts();
 }

@@ -103,6 +103,19 @@ void A4954::output(float angle, float effort)
   }
 
   pole_angle = mod(-(phase_multiplier * (angle + phaseadvancedTable[lookupIdx])), 3600);
+  /*
+
+  float phaseAdvance;
+  if (effort >= 0)
+  {
+    phaseAdvance = mySettings.PA;
+  }
+  else
+  {
+    phaseAdvance = -mySettings.PA;
+  }
+  pole_angle = mod(-(phase_multiplier * (angle + phaseAdvance)), 3600);
+*/
 
   // get sin and cosin of the current flux angle
   float sin_phi = sin_lookup[pole_angle];

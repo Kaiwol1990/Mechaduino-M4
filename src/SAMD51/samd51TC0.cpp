@@ -1,5 +1,5 @@
 
-#include "SAMD51/samd51TC4.h"
+#include "SAMD51/samd51TC0.h"
 //#include "core/Controler.h"
 #include "core/State.h"
 
@@ -8,66 +8,56 @@
 #include <SPI.h>
 #include <Arduino.h>
 
-samd51TC4::samd51TC4(int _frequency, void (*_func)())
+samd51TC0::samd51TC0(int _frequency) //, void (*_func)())
 {
   frequency = _frequency;
-  Intteruptfunc = _func;
+  // Intteruptfunc = _func;
 }
 
-void samd51TC4::setup()
+void samd51TC0::setup()
 {
   // Configure interrupt request
-  NVIC_DisableIRQ(TC4_IRQn);
-  NVIC_ClearPendingIRQ(TC4_IRQn);
+  NVIC_DisableIRQ(TC0_IRQn);
+  NVIC_ClearPendingIRQ(TC0_IRQn);
 
-  samd51TC4::calcOVF();
-  IRQn_Type temp = TC4_IRQn;
+  samd51TC0::calcOVF();
+  IRQn_Type temp = TC0_IRQn;
 
   // set priority
-  NVIC_SetPriority(temp, 0);
+  NVIC_SetPriority(temp, 4);
 
   // Enable InterruptVector
   NVIC_EnableIRQ(temp);
 }
 
-void samd51TC4::enable()
+void samd51TC0::enable()
 {
   // ----- enables the counter
-  TC4->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE; //Enable TC4
-  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
+  TC0->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE; //Enable TC4
+  while (TC0->COUNT16.SYNCBUSY.bit.ENABLE)
     ; // wait for sync
 }
 
-void samd51TC4::disable()
+void samd51TC0::disable()
 {
   // ----- disables the counter -----
-  TC4->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE; // Disable TC4
-  while (TC4->COUNT16.SYNCBUSY.bit.ENABLE)
+  TC0->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE; // Disable TC4
+  while (TC0->COUNT16.SYNCBUSY.bit.ENABLE)
     ; // wait for sync
 }
 
-void TC4_Handler()
+void TC0_Handler()
 {
   // A overflow caused the interrupt -> Call user function
-  mysamd51TC4.Intteruptfunc();
+  myCommander.cmdPoll();
 
   // Clear the interrupt
-  TC4->COUNT16.INTFLAG.bit.MC0 = 1;
-
-  /*
-  if (TC4->COUNT16.INTFLAG.bit.OVF == 1)
-  {
-    // A overflow caused the interrupt -> Call user function
-    mysamd51TC4.Intteruptfunc();
-
-    // Reset overflow flag
-    TC4->COUNT16.INTFLAG.bit.OVF = 1;
-  }*/
+  TC0->COUNT16.INTFLAG.bit.MC0 = 1;
 }
 
 ///// PRIVATE
 
-void samd51TC4::calcOVF()
+void samd51TC0::calcOVF()
 {
   // using GENERIC_CLOCK_GENERATOR_1M as input
   uint32_t ClockFreq = 48000000L;
@@ -145,52 +135,52 @@ void samd51TC4::calcOVF()
     break;
   }
 
-  // Setup generic clock generator 7
+  // Setup generic clock generator 8
   // use 48 MHz DFLL as clock input
-  GCLK->GENCTRL[7].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) | // get source from 48 MHz Clock
+  GCLK->GENCTRL[8].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) | // get source from 48 MHz Clock
                          GCLK_GENCTRL_GENEN |                          // Enable GCLK7
                          GCLK_GENCTRL_DIV(1u);                         // set divider to 1
   //                      GCLK_GENCTRL_DIV(48u);    // set divider to 48
 
   // Wait for synchronization
-  while (GCLK->SYNCBUSY.bit.GENCTRL7)
+  while (GCLK->SYNCBUSY.bit.GENCTRL8)
     ;
 
   // enable GCLK For TCx
   // use generic clock generator 7 as input
-  uint16_t GCLK_ID = TC4_GCLK_ID;
+  uint16_t GCLK_ID = TC0_GCLK_ID;
   GCLK->PCHCTRL[GCLK_ID].reg = GCLK_PCHCTRL_CHEN |
-                               GCLK_PCHCTRL_GEN_GCLK7;
+                               GCLK_PCHCTRL_GEN_GCLK8;
 
   // wait till the generator is active
   while (GCLK->PCHCTRL[GCLK_ID].bit.CHEN == 0)
     ;
 
   // reset TCx
-  resetTC(TC4);
+  resetTC(TC0);
 
   // Set TONE_TC mode as match frequency
-  TC4->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
+  TC0->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
 
   // set counter to 16 Bit mode
-  TC4->COUNT16.CTRLA.bit.MODE = TC_CTRLA_MODE_COUNT16;
+  TC0->COUNT16.CTRLA.bit.MODE = TC_CTRLA_MODE_COUNT16;
 
   // set prescaler
-  TC4->COUNT16.CTRLA.bit.PRESCALER = prescalerConfigBits;
+  TC0->COUNT16.CTRLA.bit.PRESCALER = prescalerConfigBits;
 
   // set overflow
-  TC4->COUNT16.CC[0].reg = (uint16_t)overflow_TC;
+  TC0->COUNT16.CC[0].reg = (uint16_t)overflow_TC;
 
   // wait for sync
-  WAIT_TC16_REGS_SYNC(TC4);
+  WAIT_TC16_REGS_SYNC(TC0);
 
   // enable overflow
-  TC4->COUNT16.INTENSET.bit.MC0 = 1;
+  TC0->COUNT16.INTENSET.bit.MC0 = 1;
 
-  //TC4->COUNT16.INTENSET.bit.MC0 = 0; //1;
+  //TC0->COUNT16.INTENSET.bit.MC0 = 0; //1;
 }
 
-void samd51TC4::resetTC(Tc *TCx)
+void samd51TC0::resetTC(Tc *TCx)
 {
   // Disable TCx
   TCx->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;

@@ -1,7 +1,9 @@
 #ifndef __LANGUAGE_H__
 #define __LANGUAGE_H__
 
-#define ProductName "Mechaduino M4"
+//typedef const char Language_Str[];
+
+#define ProductName "Mechaduino-M4"
 
 #define help_command "help"
 #define help_menu "prints this menu"

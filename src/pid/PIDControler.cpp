@@ -143,10 +143,17 @@ void PIDControler::enable()
 {
   if (!PIDenabled)
   {
-    PIDenabled = true;
+    if (mysamd51ADCSM.getV() > 10.0)
+    {
+      PIDenabled = true;
 
-    // Reset
-    PIDControler::reset();
+      // Reset
+      PIDControler::reset();
+    }
+    else
+    {
+      Serial.println("Can't enable controller, motor voltage to low!");
+    }
   }
 }
 

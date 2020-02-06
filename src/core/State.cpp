@@ -42,4 +42,6 @@ samd51TC4 mysamd51TC4(FPID, ControlerLoop);
 
 samd51TC5 mysamd51TC5(250, StateMachine);
 
+samd51TC0 mysamd51TC0(25);
+
 samd51ADCSM mysamd51ADCSM;

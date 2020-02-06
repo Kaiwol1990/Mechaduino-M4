@@ -100,8 +100,7 @@ compare_right(nat_char const *a, nat_char const *b)
 	return 0;
 }
 
-static int
-compare_left(nat_char const *a, nat_char const *b)
+static int compare_left(nat_char const *a, nat_char const *b)
 {
 	/* Compare two left-aligned numbers: the first to have a
         different value wins. */

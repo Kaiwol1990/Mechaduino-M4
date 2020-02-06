@@ -30,7 +30,7 @@ void init_menu()
 void Serial_menu()
 {
   Serial.println(" ");
-  Serial.println("Mechaduino v2.0");
+  Serial.println(ProductName);
   Serial.println("---------------");
   Serial.println("Add -help to a command to get a detailed explenation!");
   Serial.println(" ");

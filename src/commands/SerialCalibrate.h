@@ -5,4 +5,6 @@
 
 void init_calibrate_menu();
 
+void printfullsteps();
+
 #endif

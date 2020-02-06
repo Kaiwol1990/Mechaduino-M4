@@ -50,7 +50,7 @@ void splineMovement()
   accLimit = myCommander.return_float_argument("-a", accLimit, 100, 50000);
 
   // calculate Target
-  steps = ((myCommander.return_float_argument("-r", r, -100000.0, 100000.0) * Init_steps_per_revolution * Init_microstepping) / 360.0) + 0.5;
+  steps = ((myCommander.return_float_argument("-r", r, -100000.0, 100000.0) * mySettings.currentSettings.steps_per_Revolution * mySettings.currentSettings.microstepping) / 360.0) + 0.5;
   mystepInterface.writesteps(steps);
 }
 

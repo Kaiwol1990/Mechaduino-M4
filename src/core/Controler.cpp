@@ -6,17 +6,10 @@
 #include "core/Controler.h"
 #include "core/State.h"
 #include "core/Utils.h"
-//#include "core/Serial.h"
 #include "core/Planner.h"
 
 #include "modules/custommath.h"
 #include "SAMD51/wiringMechaduino.h"
-
-//#define MaxError 0.3
-
-//---- Step settings -----
-//const float stepangle = (360.0 / (Init_steps_per_revolution * Init_microstepping)); // angle of one microstep as float
-//const float PA = 360.0 / Init_steps_per_revolution;                                 // angle of one fullstep as int
 
 // ----- gets called with FPID -----
 // ----- calculates the target velocity and PID settings -----
@@ -60,11 +53,20 @@ void ControlerLoop()
   }
 
   // try to predict phase lag
-  float phaseAdvanced = (omega * 0.0001163);
+  //float phaseAdvanced = (omega * 0.0001147);
 
   // write output
-  myA4954.output(y + phaseAdvanced, u);
+  //myA4954.output(y + phaseAdvanced, u);
+  /* if (abs(myPID.getError()) > mySettings.PA)
+  {
+    myA4954.output(y, u);
+  }
+  else
+  {
+    myA4954.output(r, u);
+  }*/
 
+  myA4954.output(y, u);
   r_1 = r;
 }
 

@@ -5,7 +5,7 @@
 //#include <stdint.h>
 
 #include <arduino.h>
-#include "../Configuration.h"
+//#include "../Configuration.h"
 
 #include "core/settings.h"
 #include "output/A4954.h"
@@ -13,6 +13,7 @@
 #include "pid/PIDControler.h"
 #include "modules/filters.h"
 #include "SAMD51/stepInterface.h"
+#include "SAMD51/samd51TC0.h"
 #include "SAMD51/samd51TC4.h"
 #include "SAMD51/samd51TC5.h"
 #include "SAMD51/samd51ADCSM.h"
@@ -54,6 +55,8 @@ extern SerialCommander myCommander;
 extern samd51TC4 mysamd51TC4;
 
 extern samd51TC5 mysamd51TC5;
+
+extern samd51TC0 mysamd51TC0;
 
 extern samd51ADCSM mysamd51ADCSM;
 

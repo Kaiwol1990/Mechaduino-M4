@@ -16,6 +16,10 @@ samd51TC5::samd51TC5(int _frequency, void (*_func)())
 
 void samd51TC5::setup()
 {
+  // Configure interrupt request
+  NVIC_DisableIRQ(TC5_IRQn);
+  NVIC_ClearPendingIRQ(TC5_IRQn);
+
   samd51TC5::calcOVF();
 
   // set priority
@@ -43,14 +47,19 @@ void samd51TC5::disable()
 
 void TC5_Handler()
 {
+
+  // A overflow caused the interrupt -> Call user function
+  mysamd51TC5.Intteruptfunc();
+
+  // Clear the interrupt
+  TC5->COUNT16.INTFLAG.bit.MC0 = 1;
+  /*
   if (TC5->COUNT16.INTFLAG.bit.OVF == 1)
   {
-    // A overflow caused the interrupt -> Call user function
-    mysamd51TC5.Intteruptfunc();
 
     // Reset overflow flag
     TC5->COUNT16.INTFLAG.bit.OVF = 1;
-  }
+  }*/
 }
 
 ///// PRIVATE
@@ -174,7 +183,7 @@ void samd51TC5::calcOVF()
   WAIT_TC16_REGS_SYNC(TC5);
 
   // enable overflow
-  TC5->COUNT16.INTENSET.bit.OVF = 1;
+  TC5->COUNT16.INTENSET.bit.MC0 = 1;
 
   //TC5->COUNT16.INTENSET.bit.MC0 = 0; //1;
 }

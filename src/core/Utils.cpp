@@ -1,4 +1,5 @@
 
+#include "../Configuration.h"
 
 #include "SAMD51/board.h"
 #include "SAMD51/samd51TC4.h"

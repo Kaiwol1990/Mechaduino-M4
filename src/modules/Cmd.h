@@ -2,7 +2,7 @@
 #define CMD_H
 
 #include <stdint.h>
-#include "Configuration.h"
+//#include "Configuration.h"
 
 #define cmd_prompt "CMD >> "
 #define cmd_unrecognized "CMD: Command not recognized."
