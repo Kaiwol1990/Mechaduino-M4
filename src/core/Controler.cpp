@@ -18,8 +18,6 @@ void ControlerLoop()
 
   static float r_1;
 
-  float omega;
-
   //----- Calculations -----
 
   // read the current angle
@@ -34,7 +32,7 @@ void ControlerLoop()
   r = trapezodialSpline(mySettings.stepangle * (float)steps);
 
   // omega target calculation
-  omega = (r - r_1) * FPID;
+  //omega = (r - r_1) * FPID;
 
   // -------------------------------------
   // -           PID loop           -

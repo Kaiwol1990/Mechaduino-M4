@@ -4,11 +4,31 @@
 
 #include "OUTPUT/A4954.h"
 #include "language/en.h"
+#include "modules/custommath.h"
 
-#define effort 30.0
+#define effort mySettings.currentSettings.Mmax * 0.75
+//#define avg 100
 
 void calibration()
 {
+  // variables
+  float openloopTarget = 0.0;
+  float encoderReading = 0;
+  float encoderReading1 = 0;
+
+  // step delay
+  // -> one full rotation while calibrating in 10 seconds
+  int stepDelay = 10000 / mySettings.currentSettings.steps_per_Revolution;
+
+  int avg = 100;
+  int temp_reading;
+  int last_reading;
+
+  int16_t readings[(int)mySettings.currentSettings.steps_per_Revolution];
+
+  // print header to serial port
+  Serial.println(calibrate_header);
+  Serial.println();
 
   // check if motor voltage is high enough
   if (mysamd51ADCSM.getV() < 10.0)
@@ -19,33 +39,24 @@ void calibration()
     return;
   }
 
-  //float calibCurrent = 700.0;
-  float currentAngle = 0.0;
-  float currentAngle_1 = 0.0;
-
+  // disable timers
   mysamd51TC4.disable();
   mysamd51TC5.disable();
   myPID.disable();
 
-  int avg = 100;
+  //delay(200);
 
-  Serial.println(calibrate_header);
-  Serial.println();
+  // slowly increase current to jump to first fullstep position
+  Serial.println("Going to next fullstep position");
+  for (int i = 0; i < 100; i++)
+  {
+    myA4954.outputOpenloop(0, effort * (float)i / 99.0);
+    delay(1);
+  }
+  //delay(100);
 
-  //REG_PORT_OUTSET1 = PORT_PB16;  //write D3 HIGH to turn on V_Motor
-  delay(200);
-
-  //dir = true;
-  //  enabled = true;
-  //myPID.enable();
-  //steps = 0;
-  //myA4954.outputOpenloop(0.0, M_max * 0.5);
-  //myA4954.writeDACS(0, M_max * 0.5);
-  myA4954.output(0, effort);
-  delay(100);
-
-  float encoderReading = 0;
-
+  // read current position
+  encoderReading = 0;
   for (int i = 0; i < 50; i++)
   {
     encoderReading = encoderReading + myAS5047D.readDigits();
@@ -53,68 +64,58 @@ void calibration()
   }
   encoderReading = encoderReading / 50.0;
 
-  for (int i = 0; i < 4; i++)
+  // move four steps
+  Serial.println("moving 4 full steps in positive direction");
+  for (int i = 0; i < 4000; i++)
   {
-    currentAngle = currentAngle + (360.0 / mySettings.currentSettings.steps_per_Revolution);
-    for (int i = 0; i < 100; i++)
-    {
-      myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
-      delayMicroseconds(250);
-    }
-    currentAngle_1 = currentAngle;
-  }
-
-  float temp_pos = 0;
-  for (int i = 0; i < 50; i++)
-  {
-    temp_pos = temp_pos + myAS5047D.readDigits();
+    openloopTarget += (mySettings.PA / 1000.0);
+    myA4954.outputOpenloop(openloopTarget, effort);
     delayMicroseconds(250);
   }
-  temp_pos = temp_pos / 50.0;
 
-  if ((temp_pos - encoderReading) < 0)
+  // read position once again
+  encoderReading1 = 0;
+  for (int i = 0; i < 50; i++)
+  {
+    encoderReading1 = encoderReading1 + myAS5047D.readDigits();
+    delayMicroseconds(250);
+  }
+  encoderReading1 = encoderReading1 / 50.0;
+
+  // move back 4 steps
+  Serial.println("moving 4 full steps in negative direction");
+  for (int i = 0; i < 4000; i++)
+  {
+    openloopTarget -= (mySettings.PA / 1000.0);
+    myA4954.outputOpenloop(openloopTarget, effort);
+    delayMicroseconds(250);
+  }
+
+  // check if direction of the move was right
+  Serial.println("checking for correct direction of move");
+  if (encoderReading1 < encoderReading)
   {
     Serial.println("Wired backwards");
     myPID.disable();
-    mysamd51TC4.enable(); //enableTC5Interrupts();
+    mysamd51TC4.enable();
     return;
   }
 
-  for (int i = 0; i < 4; i++)
-  {
-    currentAngle = currentAngle - (360.0 / mySettings.currentSettings.steps_per_Revolution);
-    for (int i = 0; i < 100; i++)
-    {
-      myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 100.0), effort);
-      delayMicroseconds(250);
-    }
-    currentAngle_1 = currentAngle;
-  }
-
   Serial.println("Calibrating fullsteps");
+  Serial.println();
   Serial.println(procent_bar);
-  int counter = 0;
-  int count = mySettings.currentSettings.steps_per_Revolution / 50;
-  dir = true;
-
-  int16_t readings[(int)mySettings.currentSettings.steps_per_Revolution];
-
-  int temp_reading = myAS5047D.readDigits();
-  int last_reading = temp_reading;
 
   // step to every single fullstep position and read the Encoder
   for (int i = 0; i < mySettings.currentSettings.steps_per_Revolution; i++)
   {
-
-    counter += 1;
-
-    delay(350);
+    // wait for motor to settle
+    delay(stepDelay);
 
     // flush the encoder
     myAS5047D.readDigits();
     myAS5047D.readDigits();
 
-    // start real readings
+    // init readings
     encoderReading = 0;
     temp_reading = myAS5047D.readDigits();
     last_reading = temp_reading;
@@ -139,38 +140,43 @@ void calibration()
       delayMicroseconds(250);
     }
 
-    readings[i] = (encoderReading / avg) + 0.5;
+    readings[i] = (encoderReading / (float)avg) + 0.5;
     if (readings[i] > 16384)
     {
       readings[i] = readings[i] - 16384;
     }
 
-    if (counter == count)
+    // print progressbar to serial port
+    if (mod(i + 1, (int)mySettings.currentSettings.steps_per_Revolution / 50) == 0)
     {
-      counter = 0;
       Serial.print(".");
+      if (i + 1 == mySettings.currentSettings.steps_per_Revolution)
+      {
+        Serial.println();
+      }
     }
 
-    // increment angle one step
-    currentAngle = currentAngle + (360.0 / mySettings.currentSettings.steps_per_Revolution);
+    // slowly increment angle one reach next step
     for (int i = 0; i < 1000; i++)
     {
-      myA4954.outputOpenloop(currentAngle_1 + (currentAngle - currentAngle_1) * ((float)i / 1000.0), effort);
+      openloopTarget += (mySettings.PA / 1000.0);
+      myA4954.outputOpenloop(openloopTarget, effort);
       delayMicroseconds(25);
     }
-    currentAngle_1 = currentAngle;
   }
-  Serial.println(" -> done!");
 
+  // disable output
   myA4954.outputOpenloop(0.0, 0.0);
 
-  myPID.disable();
-
+  // save calibration values to flash
   mySettings.saveFullsteps(readings);
 
+  // generate lookuptable
   myAS5047D.initTable(readings);
 
-  myPID.disable();
-  mysamd51TC4.enable(); //enableTC5Interrupts();
-  mysamd51TC5.enable(); //enableTC5Interrupts();
+  // enable timers
+  mysamd51TC4.enable();
+  mysamd51TC5.enable();
+
+  Serial.println("Calibration finished");
 }

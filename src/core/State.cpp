@@ -14,17 +14,12 @@ volatile float r = 0;       //target angle
 volatile float y = 0;       //current angle
 volatile int32_t steps = 0; //target step
 
-float velLimit = 900.0;
-float accLimit = 10000.0;
-
-//float error = 0; //error angle
+float velLimit = 1200.0;
+float accLimit = 15000.0;
 
 volatile float u = 0; // control effort
 
-float electric_angle = 0;
-
 volatile bool dir = true; // flag for dir setting
-                          //bool enabled = true;         // flag for enabled setting
 
 AS5047D myAS5047D(&Serial, PORTA, 15);
 

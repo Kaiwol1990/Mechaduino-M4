@@ -28,17 +28,9 @@ extern volatile int32_t steps; //target step
 extern float velLimit;
 extern float accLimit;
 
-//extern float error; //error angle
-
 extern volatile float u; // control effort
 
-extern float electric_angle;
-
 extern volatile bool dir; // flag for  dir setting
-//extern  bool enabled;     // flag for  enabled setting
-
-//---- lookup table for the encoder reading ----
-//extern int16_t fullsteps[200];
 
 extern AS5047D myAS5047D;
 

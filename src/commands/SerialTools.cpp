@@ -2,6 +2,7 @@
 #include "commands/SerialTools.h"
 
 #include "core/State.h"
+#include "core/Utils.h"
 #include "modules/Cmd.h"
 
 #include "language/en.h"
@@ -15,6 +16,7 @@ void init_tools_menu()
   // generates the commands and dependencies for this "submenu"
   myCommander.cmdAdd(reset_command, "reset the Mechaduino", SoftReset);
   myCommander.cmdAdd("loop", "measure the maximal frequency", get_max_frequency);
+  myCommander.cmdAdd("noise", "measure the encoder noise", measure_noise);
   myCommander.cmdAdd(state_command, "get current state", state);
 }
 

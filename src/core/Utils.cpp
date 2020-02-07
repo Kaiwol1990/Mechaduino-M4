@@ -1,15 +1,14 @@
 
-#include "../Configuration.h"
 
 #include "SAMD51/board.h"
-#include "SAMD51/samd51TC4.h"
+//#include "SAMD51/samd51TC4.h"
 
-#include "core/State.h"
 #include "core/Utils.h"
+#include "core/State.h"
 
 void enaInterrupt()
 {
-  if (Init_USE_ENABLE_PIN)
+  if (mySettings.currentSettings.use_enable)
   {
     if (digitalRead(ena_pin))
     { // check if ena_pin is HIGH
@@ -23,10 +22,8 @@ void enaInterrupt()
   }
 }
 
-int measure_noise()
+void measure_noise()
 {
-
-  mysamd51TC4.disable(); //disableTC5Interrupts();
 
   delay(100);
   int counter = 0;
@@ -34,7 +31,7 @@ int measure_noise()
 
   unsigned long now = micros();
   unsigned long last_time = now;
-  int dt = ((1000000.0 / FPID) - 1);
+  int dt = ((1000000.0 / 1000.0) - 1);
 
   while (counter < 500)
   {
@@ -91,6 +88,6 @@ int measure_noise()
     }
   }
 
-  mysamd51TC4.enable(); // enableTC5Interrupts();
-  return abs((abs(highest) - abs(lowest)));
+  Serial.print("Encoder noise in deg: ");
+  Serial.println(abs((abs(highest) - abs(lowest))));
 }

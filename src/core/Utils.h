@@ -6,6 +6,6 @@
 
 void enaInterrupt();
 
-int measure_noise();
+void measure_noise();
 
 #endif
