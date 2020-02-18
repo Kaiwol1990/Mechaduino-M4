@@ -2,8 +2,8 @@
 #include "PIDControler.h"
 #include "core/settings.h"
 #include "core/State.h"
-//#include "helperFunctions.h"
-//#include "State.h"
+
+#include "SAMD51/wiringMechaduino.h"
 
 #define M_Pi 3.141592653589793115997963
 
@@ -149,6 +149,7 @@ void PIDControler::enable()
 
       // Reset
       PIDControler::reset();
+      digitalFASTWrite(PORTA, 9, HIGH);
     }
     else
     {
@@ -165,6 +166,7 @@ void PIDControler::disable()
 
     // Reset
     PIDControler::reset();
+    digitalFASTWrite(PORTA, 9, LOW);
   }
 }
 

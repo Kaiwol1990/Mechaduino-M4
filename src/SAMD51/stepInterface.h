@@ -22,10 +22,12 @@ public:
   void deactivate();
 
   // return function to get the current steps
-  int32_t getsteps();
+  //int32_t getsteps();
 
   // return function to get the current steps
-  void readsteps();
+  /* void readsteps();
+  __attribute__((optimize("O3")));*/
+  int32_t readsteps();
   __attribute__((optimize("O3")));
 
   // set function to set the current steps

@@ -120,7 +120,7 @@ void step_response()
   float dt = 1000000.0 / (float)frequency;
 
   // calculate the target vector
-  target[0] = mystepInterface.getsteps();
+  target[0] = mystepInterface.readsteps();
   for (int i = 1; i < 2000; i++)
   {
     target[i] = target[i - 1];

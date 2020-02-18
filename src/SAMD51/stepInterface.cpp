@@ -65,18 +65,16 @@ void stepInterface::deactivate()
   setupdirInterrupt(LOW);
 }
 
+/*
 int32_t stepInterface::getsteps()
 {
   return steps;
 }
-
+*/
+/*
 // return function to get the current steps
 void stepInterface::readsteps()
 {
-
-  //  int32_t tempsteps;
-  //  static int32_t tempsteps_1;
-
   TC0->COUNT32.CTRLBSET.reg = TC_CTRLBSET_CMD_READSYNC; // Trigger a read synchronization on the COUNT register
   while (TC0->COUNT32.SYNCBUSY.bit.CTRLB)
     ; // Wait for the CTRLB register write synchronization
@@ -84,16 +82,18 @@ void stepInterface::readsteps()
     ; // Wait for the COUNT register read sychronization
 
   steps = TC0->COUNT32.COUNT.reg; // Update Step Variable with content of TC0 COUNT register
+}*/
 
-  /*  if ((tempsteps_1 - tempsteps) < (2 ^ 30)) {             // overflow in positive direction
-      tempsteps = tempsteps + ((2 ^ 31) - 1);
-    }
-    else if ((tempsteps_1 - tempsteps) > -(2 ^ 30)) {            // overflow in positive direction
-      tempsteps = tempsteps - ((2 ^ 31) - 1);
-    }
+int32_t stepInterface::readsteps()
+{
+  TC0->COUNT32.CTRLBSET.reg = TC_CTRLBSET_CMD_READSYNC; // Trigger a read synchronization on the COUNT register
+  while (TC0->COUNT32.SYNCBUSY.bit.CTRLB)
+    ; // Wait for the CTRLB register write synchronization
+  while (TC0->COUNT32.SYNCBUSY.bit.COUNT)
+    ; // Wait for the COUNT register read sychronization
 
-    tempsteps_1 = tempsteps;
-    steps = tempsteps;*/
+  steps = TC0->COUNT32.COUNT.reg; // Update Step Variable with content of TC0 COUNT register
+  return steps;
 }
 
 // set function to set the current steps
