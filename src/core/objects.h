@@ -8,6 +8,8 @@
 //#include "../Configuration.h"
 
 #include "core/settings.h"
+#include "core/Planner.h"
+#include "core/monitoring.h"
 #include "output/A4954.h"
 #include "sensor/AS5047D.h"
 #include "pid/PIDControler.h"
@@ -52,4 +54,8 @@ extern samd51TC0 mysamd51TC0;
 extern samd51ADCSM mysamd51ADCSM;
 
 extern samd51TRNG mysamd51TRNG;
+
+extern Planner myPlanner;
+
+extern Monitoring_class Monitoring;
 #endif

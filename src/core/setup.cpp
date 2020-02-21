@@ -85,6 +85,11 @@ void setup()
   mystepInterface.setup();
   Serial.println("OK");
 
+  // motion planning
+  Serial.print("setup motion planner: ");
+  myPlanner.setMode(mode_init);
+  Serial.println("OK");
+
   if (mySettings.currentSettings.use_enable)
   {
     Serial.print("setup enable pin: ");

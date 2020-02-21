@@ -66,14 +66,29 @@ void set_motion()
     Serial.println(" ");
     Serial.println("-v [x]  set the maximal /  target velocity to the given value in deg/s");
     Serial.println("-a [x]  set the maximal /  target accleration to the given value in deg/s^2");
+    Serial.println("-m [x]  set the motion planing mode");
     Serial.println(" ");
     return;
   }
 
   float velLimit_temp = myCommander.return_float_argument("-v", velLimit, 1, 1000000);
   float accLimit_temp = myCommander.return_float_argument("-acc", accLimit, 1, 1000000);
+  uint8_t mode = myCommander.return_float_argument("-m", myPlanner.getMode(), 0, 2);
   velLimit = velLimit_temp;
   accLimit = accLimit_temp;
+
+  if (mode != myPlanner.getMode())
+  {
+    if (myPID.getState())
+    {
+      Serial.println("Can't change motion planing while PID loop ist active!");
+    }
+    else
+    {
+      Serial.println("Changing motion planningmode");
+      myPlanner.setMode(mode);
+    }
+  }
 }
 
 void step_response()

@@ -2,9 +2,7 @@
 
 #include "core/variables.h"
 
-//---- interrupt vars ----
-//volatile byte mode = 0;
-
+/****************************************** Variables ******************************************/
 volatile float r = 0;     //target angle
 volatile float y = 0;     //current angle
 volatile float u = 0;     // control effort

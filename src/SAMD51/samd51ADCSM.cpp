@@ -127,10 +127,17 @@ void samd51ADCSM::step()
     {                                // wait for sync
       ADC0->CTRLA.bit.ENABLE = 0x00; // Disable ADC
       //samd51ADCSM::state++;
-      samd51ADCSM::state = 0;
+      samd51ADCSM::state++;
     }
     break;
 
+  case 11:
+    Monitoring.check();
+    samd51ADCSM::state = 0;
+    break;
+  }
+
+  /*
   // CPU Temp
   case 11:
     if (!(ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL))
@@ -239,7 +246,7 @@ void samd51ADCSM::step()
     samd51ADCSM::TCPU = ((TL * VPH * samd51ADCSM::TC) - (VPL * TH * samd51ADCSM::TC) - (samd51ADCSM::TL * VCH * samd51ADCSM::TP) + (samd51ADCSM::TH * VCL * samd51ADCSM::TP)) / ((VCL * samd51ADCSM::TP) - (VCH * samd51ADCSM::TP) - (VPL * samd51ADCSM::TC) + (VPH * samd51ADCSM::TC));
     samd51ADCSM::state = 0;
     break;
-  }
+  }*/
 }
 
 float_t samd51ADCSM::getV()

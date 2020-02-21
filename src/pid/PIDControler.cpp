@@ -2,6 +2,7 @@
 #include "PIDControler.h"
 #include "core/settings.h"
 #include "core/objects.h"
+#include "core/variables.h"
 
 #include "SAMD51/wiringMechaduino.h"
 
@@ -122,13 +123,11 @@ void PIDControler::updateGains()
 
   OutputLimit = mySettings.currentSettings.Mmax;
   IntegrationLimit = mySettings.currentSettings.IntegralLimit;
-
-  // enable controller
-  //PIDControler::enable();
 }
 
 void PIDControler::setState(bool enabled_)
 {
+
   if (enabled_)
   {
     PIDControler::enable();
@@ -141,20 +140,20 @@ void PIDControler::setState(bool enabled_)
 
 void PIDControler::enable()
 {
-  if (!PIDenabled)
-  {
-    if (mysamd51ADCSM.getV() > 10.0)
-    {
-      PIDenabled = true;
+  //if (mysamd51ADCSM.getV() > 10.0)
 
-      // Reset
-      PIDControler::reset();
-      digitalFASTWrite(PORTA, 9, HIGH);
-    }
-    else
-    {
-      Serial.println("Can't enable controller, motor voltage to low!");
-    }
+  // only enable if monitoring throws no error
+  if (!Monitoring.ERROR.reg)
+  {
+    PIDenabled = true;
+
+    // Reset
+    PIDControler::reset();
+    digitalFASTWrite(PORTA, 9, HIGH);
+  }
+  else
+  {
+    Serial.println("Can't enable controller, check error register!");
   }
 }
 

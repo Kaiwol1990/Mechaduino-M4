@@ -5,6 +5,7 @@
 #include "core/objects.h"
 #include "core/variables.h"
 #include "core/Controler.h"
+#include "core/Planner.h"
 #include "SAMD51/board.h"
 #include "commands/Serial.h"
 
@@ -42,3 +43,7 @@ samd51TC0 mysamd51TC0(25);
 samd51ADCSM mysamd51ADCSM;
 
 samd51TRNG mysamd51TRNG;
+
+Planner myPlanner;
+
+Monitoring_class Monitoring;

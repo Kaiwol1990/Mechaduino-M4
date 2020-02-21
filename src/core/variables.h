@@ -6,8 +6,7 @@
 
 #include <arduino.h>
 
-//---- interrupt vars ----
-
+/****************************************** Variables ******************************************/
 extern volatile float r;       //target angle
 extern volatile float y;       //current angle
 extern volatile int32_t steps; //target step

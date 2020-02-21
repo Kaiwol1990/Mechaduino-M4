@@ -5,6 +5,8 @@
 
 void init_movement_menu();
 
+void setMode();
+
 void reportPostition();
 
 void set_motion();

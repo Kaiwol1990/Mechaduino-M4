@@ -21,15 +21,10 @@ void ControlerLoop()
   // -------------------------------------
   steps = mystepInterface.readsteps();
 
-// -------------------------------------
-// -           Motion planing          -
-// -------------------------------------
-// r = myPlanner.target(mySettings.stepangle * (float)steps);
-#ifdef Use_Spline
-  r = splineInterpolate(mySettings.stepangle * (float)steps);
-#else
-  r = trapezodialSpline(mySettings.stepangle * (float)steps);
-#endif
+  // -------------------------------------
+  // -           Motion planing          -
+  // -------------------------------------
+  r = myPlanner.setTarget(mySettings.stepangle * (float)steps);
 
   // -------------------------------------
   // -       Reset if not enabled       -
@@ -47,7 +42,14 @@ void ControlerLoop()
   // -------------------------------------
   // -         Current Controller        -
   // -------------------------------------
-  myA4954.output(y, u);
+  if (Monitoring.errorOccured())
+  {
+    myA4954.output(y, 0);
+  }
+  else
+  {
+    myA4954.output(y, u);
+  }
 }
 
 void StateMachine()

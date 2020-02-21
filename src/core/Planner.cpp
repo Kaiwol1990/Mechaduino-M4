@@ -5,155 +5,63 @@
 #include "core/Planner.h"
 #include "../Configuration.h"
 
-float trapezodialSpline(float dem_val)
+#define TOLERANCE 0.05
+
+/******************** CONSTRUCTOR *******************/
+Planner::Planner()
 {
-
-  static float dem_val_1;
-  static float omega;
-  static float omega_t;
-
-  static float set;
-
-  static float phi_1;
-  static float phi_2;
-  static float phi_3;
-
-  static float a_acc;
-  static float a_decc;
-
-  static float phi;
-
-  /* Check if inputs have changed since last step */
-  if (dem_val != dem_val_1)
-  {
-
-    // save current target as reference
-    float phi_0 = set;
-
-    phi = dem_val - phi_0;
-
-    if (phi < 0)
-    {
-      omega_t = -velLimit;
-      a_acc = -accLimit;
-      a_decc = accLimit;
-    }
-    else
-    {
-      omega_t = velLimit;
-      a_acc = accLimit;
-      a_decc = -accLimit;
-    }
-
-    // calculate distances
-    float phi_acc = estimaeAccAngle(omega, omega_t, a_acc);
-    float phi_decc = estimaeAccAngle(omega_t, 0, a_decc);
-    float phi_full = phi - phi_acc - phi_decc;
-
-    if (sign(phi) * phi_full > 0)
-    {
-      phi_1 = phi_0 + phi_acc;
-      phi_2 = phi_0 + phi_acc + phi_full;
-      phi_3 = phi_0 + phi;
-    }
-    else
-    {
-      // Nicht genug zeit um auf volle geschwindigkeit zu kommen!
-      float temp = IntersectionDistance(phi, omega, 0, a_acc);
-
-      phi_1 = phi_0 + temp;
-      phi_2 = phi_1;
-      phi_3 = phi_0 + phi;
-    }
-
-    dem_val_1 = dem_val;
-  }
-
-  if (sign(phi) > 0)
-  {
-    if (set < phi_1)
-    {
-      // accel
-      omega += (a_acc / FPID);
-      set += omega / FPID;
-    }
-    else if (set <= phi_2)
-    {
-      omega = omega_t;
-      set += omega / FPID;
-    }
-    else if ((set <= phi_3) && (omega > 0))
-    {
-      // deccel
-      omega += (a_decc / FPID);
-      set += omega / FPID;
-    }
-    else
-    {
-      omega = 0;
-      set = dem_val;
-    }
-  }
-  else
-  {
-    if (set > phi_1)
-    {
-      // accel
-      omega += (a_acc / FPID);
-      set += omega / FPID;
-    }
-    else if (set >= phi_2)
-    {
-      omega = omega_t;
-      set += omega / FPID;
-    }
-    else if ((set > phi_3) && (omega < 0))
-    {
-      // deccel
-      omega += (a_decc / FPID);
-      set += omega / FPID;
-    }
-    else
-    {
-      omega = 0;
-      set = dem_val;
-    }
-  }
-
-  return set;
 }
 
-float IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc)
-{
+/******************** Public *******************/
 
-  return (2.0 * a_acc * phi + (omega_final * omega_final) - (omega_0 * omega_0)) / (4 * a_acc);
-}
-
-float estimaeAccAngle(float omega_0, float omega_t, float a)
+// set the target new target and return the current interpolated target based on the motion planning
+float Planner::setTarget(float input)
 {
-  float domega = omega_t - omega_0;
-  return ((omega_0 + 0.5 * domega) * domega / a);
-}
+  // variables
+  float output;
 
-float sign(float input)
-{
-  if (input >= 0)
+  // switch mode
+  switch (Planner::mode)
   {
-    return 1.0;
+  case 0:
+    output = input;
+    break;
+
+  case 1:
+    output = Planner::trapezodialSpline(input);
+    break;
+
+  case 2:
+    output = Planner::splineInterpolate(input);
+    break;
+
+  default:
+    // default is no motion planning
+    output = input;
+    break;
   }
-  else
-  {
-    return -1.0;
-  }
+
+  return output;
 }
+
+void Planner::setMode(uint8_t mode_)
+{
+  Planner::mode = mode_;
+}
+
+uint8_t Planner::getMode()
+{
+  return Planner::mode;
+}
+
+/******************** PRIVAT *******************/
 
 // Motion Planner for Spline interpolation.
 // The Spline will always have the set max Velocity at its fastest point.
 // Bevor and after this Point it will accelerate oder deccelerate
-
-float splineInterpolate(float dem_val)
+float Planner::splineInterpolate(float dem_val)
 {
-  static float dem_val_1;
+  //static float dem_val_1;
   static float dem_val_0;
   static float rate;
   static float set_1;
@@ -167,14 +75,12 @@ float splineInterpolate(float dem_val)
   float set;
   float diff;
 
-#define TOLERANCE 0.05
-
   /* Calculate actual rate */
   /* Check if inputs have changed since last step */
-  if (dem_val != dem_val_1)
+  if (dem_val != Planner::dem_val_1)
   {
 
-    diff = fabsf(dem_val_1 - dem_val);
+    diff = fabsf(Planner::dem_val_1 - dem_val);
     dem_time = (diff / velLimit);
 
     rate = (dem_val - set_1) / dem_time;
@@ -236,8 +142,149 @@ float splineInterpolate(float dem_val)
     set = (rate / FPID) + set_1;
   }
 
-  dem_val_1 = dem_val;
+  Planner::dem_val_1 = dem_val;
   set_1 = set;
 
   return set;
+}
+
+float Planner::trapezodialSpline(float dem_val)
+{
+  // variables
+  static float omega;
+  static float omega_t;
+
+  static float set;
+
+  static float phi_1;
+  static float phi_2;
+  static float phi_3;
+
+  static float a_acc;
+  static float a_decc;
+
+  static float phi;
+
+  /* Check if inputs have changed since last step */
+  if (dem_val != Planner::dem_val_1)
+  {
+
+    // save current target as reference
+    float phi_0 = set;
+
+    phi = dem_val - phi_0;
+
+    if (phi < 0)
+    {
+      omega_t = -velLimit;
+      a_acc = -accLimit;
+      a_decc = accLimit;
+    }
+    else
+    {
+      omega_t = velLimit;
+      a_acc = accLimit;
+      a_decc = -accLimit;
+    }
+
+    // calculate distances
+    float phi_acc = Planner::estimaeAccAngle(omega, omega_t, a_acc);
+    float phi_decc = Planner::estimaeAccAngle(omega_t, 0, a_decc);
+    float phi_full = phi - phi_acc - phi_decc;
+
+    if (Planner::sign(phi) * phi_full > 0)
+    {
+      phi_1 = phi_0 + phi_acc;
+      phi_2 = phi_0 + phi_acc + phi_full;
+      phi_3 = phi_0 + phi;
+    }
+    else
+    {
+      // Nicht genug zeit um auf volle geschwindigkeit zu kommen!
+      float temp = Planner::IntersectionDistance(phi, omega, 0, a_acc);
+
+      phi_1 = phi_0 + temp;
+      phi_2 = phi_1;
+      phi_3 = phi_0 + phi;
+    }
+
+    Planner::dem_val_1 = dem_val;
+  }
+
+  if (Planner::sign(phi) > 0)
+  {
+    if (set < phi_1)
+    {
+      // accel
+      omega += (a_acc / FPID);
+      set += omega / FPID;
+    }
+    else if (set <= phi_2)
+    {
+      omega = omega_t;
+      set += omega / FPID;
+    }
+    else if ((set <= phi_3) && (omega > 0))
+    {
+      // deccel
+      omega += (a_decc / FPID);
+      set += omega / FPID;
+    }
+    else
+    {
+      omega = 0;
+      set = dem_val;
+    }
+  }
+  else
+  {
+    if (set > phi_1)
+    {
+      // accel
+      omega += (a_acc / FPID);
+      set += omega / FPID;
+    }
+    else if (set >= phi_2)
+    {
+      omega = omega_t;
+      set += omega / FPID;
+    }
+    else if ((set > phi_3) && (omega < 0))
+    {
+      // deccel
+      omega += (a_decc / FPID);
+      set += omega / FPID;
+    }
+    else
+    {
+      omega = 0;
+      set = dem_val;
+    }
+  }
+
+  return set;
+}
+
+float Planner::IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc)
+{
+
+  return (2.0 * a_acc * phi + (omega_final * omega_final) - (omega_0 * omega_0)) / (4 * a_acc);
+}
+
+float Planner::estimaeAccAngle(float omega_0, float omega_t, float a)
+{
+  float domega = omega_t - omega_0;
+  return ((omega_0 + 0.5 * domega) * domega / a);
+}
+
+float Planner::sign(float input)
+{
+  if (input >= 0)
+  {
+    return 1.0;
+  }
+  else
+  {
+    return -1.0;
+  }
 }

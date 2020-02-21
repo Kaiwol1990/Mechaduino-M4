@@ -2,16 +2,30 @@
 
 #ifndef __PLANNER_H__
 #define __PLANNER_H__
-#include <arduino.h>
 
-float trapezodialSpline(float input);
+class Planner
+{
+public:
+    Planner();
 
-float splineInterpolate(float input);
+    float setTarget(float); /* sets new target based on current movement mode */
 
-float IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc);
+    void setMode(uint8_t); /* switch motion planning mode */
 
-float estimaeAccAngle(float omega_0, float omega_t, float a);
+    uint8_t getMode(); /* switch motion planning mode */
 
-float sign(float input);
+private:
+    uint8_t mode;
+    float dem_val_1;
 
+    float trapezodialSpline(float input);
+
+    float splineInterpolate(float input);
+
+    float IntersectionDistance(float phi, float omega_0, float omega_final, float a_acc); /* helper function: */
+
+    float estimaeAccAngle(float omega_0, float omega_t, float a); /* helper function: */
+
+    float sign(float input); /* helper function: */
+};
 #endif

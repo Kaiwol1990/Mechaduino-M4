@@ -42,6 +42,8 @@ void diagnose()
   Serial.println("---------------------------");
   Serial.println(mysamd51ADCSM.getV());
 
+  Monitoring.printError();
+
   mysamd51TC4.enable();
   mysamd51TC5.enable();
 }
