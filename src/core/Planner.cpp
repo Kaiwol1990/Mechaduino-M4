@@ -1,7 +1,8 @@
 //Contains the definitions of the functions used by the firmware.
 
-#include "State.h"
-#include "Planner.h"
+#include "core/objects.h"
+#include "core/variables.h"
+#include "core/Planner.h"
 #include "../Configuration.h"
 
 float trapezodialSpline(float dem_val)

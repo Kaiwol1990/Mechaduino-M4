@@ -1,7 +1,8 @@
 
 #include "commands/SerialMovement.h"
 
-#include "core/State.h"
+#include "core/objects.h"
+#include "core/variables.h"
 #include "modules/Cmd.h"
 
 #include "language/en.h"

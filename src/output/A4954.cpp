@@ -3,7 +3,7 @@
 #include "Lookups.h"
 
 #include "modules/custommath.h"
-#include "core/State.h"
+#include "core/objects.h"
 
 #include "SAMD51/wiringMechaduino.h"
 #include "SAMD51/board.h"
@@ -76,10 +76,17 @@ void A4954::setTorque(float I_rated, float M_max, float iMAX)
 //void A4954::output(float electric_angle, float effort, bool enabled) {
 void A4954::output(float angle, float effort)
 {
+  //variables
   float Ialpha;
   float Ibeta;
   uint32_t pole_angle;
   uint16_t lookupIdx;
+
+  // direction setting
+  if (mySettings.currentSettings.invert)
+  {
+    angle = -angle;
+  }
 
   // Limit output
   if (effort < -tMax)
@@ -130,9 +137,16 @@ void A4954::output(float angle, float effort)
 
 void A4954::outputOpenloop(float angle, float effort)
 {
+  // variables
   float Ialpha;
   float Ibeta;
   uint32_t pole_angle;
+
+  // direction setting
+  if (mySettings.currentSettings.invert)
+  {
+    angle = -angle;
+  }
 
   // Limit output
   if (effort < -tMax)

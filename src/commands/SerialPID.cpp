@@ -1,8 +1,7 @@
 
 #include "commands/SerialPID.h"
 
-#include "core/State.h"
-#include "core/State.h"
+#include "core/objects.h"
 #include "modules/Cmd.h"
 
 #include "language/en.h"

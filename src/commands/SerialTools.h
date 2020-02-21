@@ -5,6 +5,10 @@
 
 void init_tools_menu();
 
+void diagnose();
+
+void measureNoise();
+
 void state();
 
 void SoftReset();

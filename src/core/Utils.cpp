@@ -4,7 +4,7 @@
 //#include "SAMD51/samd51TC4.h"
 
 #include "core/Utils.h"
-#include "core/State.h"
+#include "core/objects.h"
 
 void enaInterrupt()
 {
@@ -20,74 +20,4 @@ void enaInterrupt()
       myPID.disable();
     }
   }
-}
-
-void measure_noise()
-{
-
-  delay(100);
-  int counter = 0;
-  float points[500] = {0};
-
-  unsigned long now = micros();
-  unsigned long last_time = now;
-  int dt = ((1000000.0 / 1000.0) - 1);
-
-  while (counter < 500)
-  {
-    now = micros();
-    if (now > last_time + dt)
-    {
-      last_time = now;
-
-      points[counter] = y;
-      counter++;
-    }
-  }
-
-  float mean = 0;
-  for (int i = 0; i < 500; i++)
-  {
-    mean = mean + points[i];
-  }
-  mean = mean / 500.0;
-
-  float upper = 0;
-  float lower = 0;
-  int upcounter = 0;
-  int lowcounter = 0;
-
-  for (int i = 0; i < 500; i++)
-  {
-    if (points[i] > mean)
-    {
-      upcounter++;
-      upper = upper + points[i];
-    }
-    else if (points[i] < mean)
-    {
-      lowcounter++;
-      lower = lower + points[i];
-    }
-  }
-  upper = upper / upcounter;
-  lower = lower / lowcounter;
-
-  float highest = mean;
-  float lowest = mean;
-
-  for (int i = 0; i < 500; i++)
-  {
-    if (points[i] > highest)
-    {
-      highest = points[i];
-    }
-    else if (points[i] < lowest)
-    {
-      lowest = points[i];
-    }
-  }
-
-  Serial.print("Encoder noise in deg: ");
-  Serial.println(abs((abs(highest) - abs(lowest))));
 }

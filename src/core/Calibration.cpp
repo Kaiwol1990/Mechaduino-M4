@@ -1,6 +1,6 @@
 
 #include "core/Calibration.h"
-#include "core/State.h"
+#include "core/objects.h"
 
 #include "OUTPUT/A4954.h"
 #include "language/en.h"
@@ -44,8 +44,6 @@ void calibration()
   mysamd51TC5.disable();
   myPID.disable();
 
-  //delay(200);
-
   // slowly increase current to jump to first fullstep position
   Serial.println("Going to next fullstep position");
   for (int i = 0; i < 100; i++)
@@ -53,7 +51,6 @@ void calibration()
     myA4954.outputOpenloop(0, effort * (float)i / 99.0);
     delay(1);
   }
-  //delay(100);
 
   // read current position
   encoderReading = 0;
@@ -81,7 +78,7 @@ void calibration()
     delayMicroseconds(250);
   }
   encoderReading1 = encoderReading1 / 50.0;
-
+  /*
   // move back 4 steps
   Serial.println("moving 4 full steps in negative direction");
   for (int i = 0; i < 4000; i++)
@@ -90,15 +87,51 @@ void calibration()
     myA4954.outputOpenloop(openloopTarget, effort);
     delayMicroseconds(250);
   }
-
+*/
   // check if direction of the move was right
   Serial.println("checking for correct direction of move");
   if (encoderReading1 < encoderReading)
   {
-    Serial.println("Wired backwards");
-    myPID.disable();
-    mysamd51TC4.enable();
-    return;
+    Serial.println("Wired backwards: inverting direction");
+    mySettings.currentSettings.invert = true;
+
+    // read current position
+    encoderReading = 0;
+    for (int i = 0; i < 50; i++)
+    {
+      encoderReading = encoderReading + myAS5047D.readDigits();
+      delayMicroseconds(250);
+    }
+    encoderReading = encoderReading / 50.0;
+
+    // move four steps
+    Serial.println("moving 4 full steps in positive direction");
+    for (int i = 0; i < 4000; i++)
+    {
+      openloopTarget += (mySettings.PA / 1000.0);
+      myA4954.outputOpenloop(openloopTarget, effort);
+      delayMicroseconds(250);
+    }
+
+    // read position once again
+    encoderReading1 = 0;
+    for (int i = 0; i < 50; i++)
+    {
+      encoderReading1 = encoderReading1 + myAS5047D.readDigits();
+      delayMicroseconds(250);
+    }
+    encoderReading1 = encoderReading1 / 50.0;
+
+    if (encoderReading1 < encoderReading)
+    {
+      myPID.disable();
+      mysamd51TC4.enable();
+      return;
+    }
+    else
+    {
+      Serial.println("inverting was succsesfull");
+    }
   }
 
   Serial.println("Calibrating fullsteps");
@@ -170,6 +203,8 @@ void calibration()
 
   // save calibration values to flash
   mySettings.saveFullsteps(readings);
+  mySettings.storeSettings(mySettings.defaultSlot);
+  mySettings.commit();
 
   // generate lookuptable
   myAS5047D.initTable(readings);

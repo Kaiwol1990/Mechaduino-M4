@@ -7,7 +7,7 @@
 #include "SAMD51/samd51TC5.h"
 
 #include "core/Controler.h"
-#include "core/State.h"
+#include "core/objects.h"
 #include "core/Calibration.h"
 #include "core/setup.h"
 #include "core/Utils.h"
@@ -22,7 +22,10 @@
 void setup()
 {
   Serial.begin(Init_baudrate);
-  delay(500);
+  uint32_t startMillis = millis();
+  while (!Serial && ((millis() - startMillis) < 1000))
+  {
+  }
   Serial.println(" ");
   Serial.println(" ");
   Serial.println(bootscreen_01);

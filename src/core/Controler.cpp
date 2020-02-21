@@ -1,14 +1,10 @@
 //Contains TC5 Controller definition
-//The main control loop is executed by the TC5 timer interrupt:
-
-#include "Configuration.h"
+//The main control loop is executed by the TC2 timer interrupt:
 
 #include "core/Controler.h"
-#include "core/State.h"
-#include "core/Utils.h"
+#include "core/objects.h"
+#include "core/variables.h"
 #include "core/Planner.h"
-
-#include "modules/custommath.h"
 
 // ----- gets called with FPID -----
 void ControlerLoop()
@@ -25,10 +21,15 @@ void ControlerLoop()
   // -------------------------------------
   steps = mystepInterface.readsteps();
 
-  // -------------------------------------
-  // -           Motion planing          -
-  // -------------------------------------
+// -------------------------------------
+// -           Motion planing          -
+// -------------------------------------
+// r = myPlanner.target(mySettings.stepangle * (float)steps);
+#ifdef Use_Spline
+  r = splineInterpolate(mySettings.stepangle * (float)steps);
+#else
   r = trapezodialSpline(mySettings.stepangle * (float)steps);
+#endif
 
   // -------------------------------------
   // -       Reset if not enabled       -

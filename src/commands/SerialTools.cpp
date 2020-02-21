@@ -1,7 +1,7 @@
 
 #include "commands/SerialTools.h"
 
-#include "core/State.h"
+#include "core/objects.h"
 #include "core/Utils.h"
 #include "modules/Cmd.h"
 
@@ -16,8 +16,49 @@ void init_tools_menu()
   // generates the commands and dependencies for this "submenu"
   myCommander.cmdAdd(reset_command, "reset the Mechaduino", SoftReset);
   myCommander.cmdAdd("loop", "measure the maximal frequency", get_max_frequency);
-  myCommander.cmdAdd("noise", "measure the encoder noise", measure_noise);
+  myCommander.cmdAdd("noise", "measure the encoder noise", measureNoise);
   myCommander.cmdAdd(state_command, "get current state", state);
+  myCommander.cmdAdd("diagnose", "get current state", diagnose);
+}
+void diagnose()
+{
+
+  mysamd51TC4.disable();
+  mysamd51TC5.disable();
+
+  delay(100);
+
+  Serial.println("Reading Encoder Diagnostics");
+  Serial.println("---------------------------");
+  myAS5047D.readDIAAGC();
+  myAS5047D.readERRFL();
+
+  Serial.println("Reading Temperature");
+  Serial.println("---------------------------");
+  Serial.println(mysamd51ADCSM.getT());
+  Serial.println(" ");
+
+  Serial.println("Reading Voltage");
+  Serial.println("---------------------------");
+  Serial.println(mysamd51ADCSM.getV());
+
+  mysamd51TC4.enable();
+  mysamd51TC5.enable();
+}
+
+void measureNoise()
+{
+
+  mysamd51TC4.disable();
+  mysamd51TC5.disable();
+
+  float temp = myAS5047D.measureNoise();
+
+  Serial.print("Encoder noise in deg: ");
+  Serial.println(temp);
+
+  mysamd51TC4.enable();
+  mysamd51TC5.enable();
 }
 
 void state()

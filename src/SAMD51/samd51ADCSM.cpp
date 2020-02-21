@@ -2,7 +2,7 @@
 
 #include "SAMD51/samd51ADCSM.h"
 #include "SAMD51/board.h"
-#include "core/State.h"
+#include "core/objects.h"
 
 #define NVMCTRL_TEMP_LOG NVMCTRL_TEMP_LOG_W0
 
@@ -131,7 +131,7 @@ void samd51ADCSM::step()
     }
     break;
 
-    // CPU Temp
+  // CPU Temp
   case 11:
     if (!(ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL))
     {                                                         // wait for sync

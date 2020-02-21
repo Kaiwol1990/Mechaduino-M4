@@ -4,7 +4,7 @@
 #include <SPI.h>
 
 #include "SAMD51/wiringMechaduino.h"
-#include "core/State.h"
+#include "core/objects.h"
 #include "modules/custommath.h"
 
 static Stream *stream;
@@ -100,27 +100,51 @@ float AS5047D::getAngle()
   return currentAngle;
 }
 
-float AS5047D::getLastAngle()
+float AS5047D::measureNoise()
 {
-  return lastAngle;
+  float points[500] = {0};
+
+  for (uint32_t i = 0; i < 500; i++)
+  {
+    delayMicroseconds(200);
+    points[i] = AS5047D::readDigits();
+  }
+
+  float highest = 0;
+  float lowest = 16384.0;
+
+  for (uint32_t i = 0; i < 500; i++)
+  {
+    if (points[i] > highest)
+    {
+      highest = points[i];
+    }
+    else if (points[i] < lowest)
+    {
+      lowest = points[i];
+    }
+  }
+
+  return (360.0 * abs(highest - lowest)) / 16384.0;
 }
 
 void AS5047D::readDIAAGC()
 {
   uint16_t registerValue;
 
-  stream->println("Leese Encoder Diganostics");
   registerValue = readRegister(0x3FFC);
   registerValue = readRegister(0x0000);
 
   // Slice single bits from register Value
-  bool MAGL = bitRead(registerValue, 11);             //  11 Diagnostics: Magnetic field strength too low; AGC=0xFF
-  bool MAGH = bitRead(registerValue, 10);             //  10 Diagnostics: Magnetic field strength too high; AGC=0x00
-  bool COF = bitRead(registerValue, 9);               //   9 Diagnostics: CORDIC overflow
-  bool LF = bitRead(registerValue, 8);                //   8 Diagnostics: Offset compensation, LF=0:internal offset loops not ready regulated, LF=1:internal offset loop finished
-  uint16_t AGC = registerValue && 0B0000000011111111; // 7:0 Automatic gain control value
+  bool MAGL = bitRead(registerValue, 11);            //  11 Diagnostics: Magnetic field strength too low; AGC=0xFF
+  bool MAGH = bitRead(registerValue, 10);            //  10 Diagnostics: Magnetic field strength too high; AGC=0x00
+  bool COF = bitRead(registerValue, 9);              //   9 Diagnostics: CORDIC overflow
+  bool LF = bitRead(registerValue, 8);               //   8 Diagnostics: Offset compensation, LF=0:internal offset loops not ready regulated, LF=1:internal offset loop finished
+  uint32_t AGC = registerValue & 0B0000000011111111; // 7:0 Automatic gain control value
 
   stream->println("Check DIAAGC register (0x3FFC)");
+  stream->print("Raw register value: ");
+  stream->println(registerValue & 0B0011111111111111, BIN);
   stream->print("MAGL: ");
   stream->print(MAGL);
   if (MAGL)
@@ -167,6 +191,9 @@ void AS5047D::readDIAAGC()
 
   stream->print("AGC: Automatic gain control: ");
   stream->println(AGC);
+  stream->print("Guessed magnetic field strength: ");
+  stream->print(70 - (35 * (float)AGC / 255.0));
+  stream->println(" mT");
 
   stream->println(" ");
 }
@@ -175,16 +202,17 @@ void AS5047D::readERRFL()
 {
   uint16_t registerValue;
 
-  stream->println("Leese Encoder Diganostics");
   registerValue = readRegister(0x0001);
   registerValue = readRegister(0x0000);
 
   //                          0B0011111111111111
-  bool PARERR = registerValue & 0B0000000000000100;  //  11 Diagnostics: Magnetic field strength too low; AGC=0xFF
-  bool INVCOMM = registerValue & 0B0000000000000010; //  10 Diagnostics: Magnetic field strength too high; AGC=0x00
-  bool FRERR = registerValue & 0B0000000000000001;   //   9 Diagnostics: CORDIC overflow
+  bool PARERR = registerValue & 0B0000000000000100;  //   2 Diagnostics: Parity error
+  bool INVCOMM = registerValue & 0B0000000000000010; //   1 Diagnostics: Invalid command error: set to 1 by reading or writing an invalid register address
+  bool FRERR = registerValue & 0B0000000000000001;   //   0 Diagnostics: Framing error: is set to 1 when a non-compliant SPI frame is detected
 
   stream->println("Check ERRFL register (0x0001)");
+  stream->print("Raw register value: ");
+  stream->println(registerValue & 0B0011111111111111, BIN);
   stream->print("PARERR: ");
   stream->print(PARERR);
   if (PARERR)

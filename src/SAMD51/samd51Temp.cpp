@@ -2,15 +2,9 @@
 
 #include "SAMD51/samd51Temp.h"
 #include "SAMD51/board.h"
-#include "core/State.h"
+#include "core/objects.h"
 
-/*
-  TemperatureZero.h - Arduino library for internal temperature of the family SAMD -
-  Copyright (c) 2018 Electronic Cats.  All right reserved.
-  Based in the work of Mitchell Pontague https://github.com/arduino/ArduinoCore-samd/pull/277
-*/
-
-#include "Arduino.h"
+//#include "Arduino.h"
 
 #define NVMCTRL_TEMP_LOG NVMCTRL_TEMP_LOG_W0
 
@@ -35,11 +29,6 @@ float TemperatureSamd51::readInternalTemperature()
 
   uint32_t TP; // read ADC1 TSENSP
   uint32_t TC; // read ADC1 TSENSC
-  // Save ADC0 settings
-  //uint16_t oldReadResolution = ADC0->CTRLB.reg;
-  //uint16_t oldSampling = ADC0->SAMPCTRL.reg;
-  //uint16_t oldReferenceGain = ADC0->INPUTCTRL.bit.GAIN;
-  //uint16_t oldReferenceSelect = ADC0->REFCTRL.bit.REFSEL;
 
   // set Ref to 1 V
   analogReference(AR_INTERNAL1V0);
@@ -127,20 +116,6 @@ float TemperatureSamd51::readInternalTemperature()
 
   // set VREF back to external -> jumper to 3.3 Volt
   analogReference(AR_EXTERNAL);
-
-  /*
-  // Restore pervious ADC0 settings
-  ADC0->CTRLB.reg = oldReadResolution;
-  while (ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE)
-    ;
-  ADC0->SAMPCTRL.reg = oldSampling;
-  while (ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE)
-    ;
-  ADC0->INPUTCTRL.bit.GAIN = oldReferenceGain;
-  ADC0->REFCTRL.bit.REFSEL = oldReferenceSelect;
-  while (ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE)
-    ;
-*/
 
   // Factory low temperature readings
   uint8_t TLI = (*(uint32_t *)FUSES_ROOM_TEMP_VAL_INT_ADDR & FUSES_ROOM_TEMP_VAL_INT_Msk) >> FUSES_ROOM_TEMP_VAL_INT_Pos; // integer
