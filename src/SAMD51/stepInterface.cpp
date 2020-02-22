@@ -11,7 +11,7 @@ static int32_t steps;
 
 //steps_per_revolution( steps_per_revolution_ )
 // CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
-stepInterface::stepInterface(uint32_t stepPin_, uint32_t dirPin_, uint32_t enaPin_, float steps_per_revolution_, float microstepping_)
+stepInterface_class::stepInterface_class(uint32_t stepPin_, uint32_t dirPin_, uint32_t enaPin_, float steps_per_revolution_, float microstepping_)
 {
   stepPin = stepPin_;
   dirPin = dirPin_;
@@ -23,7 +23,7 @@ stepInterface::stepInterface(uint32_t stepPin_, uint32_t dirPin_, uint32_t enaPi
 // PUBLIC METHODS * * * * * * * * * * * * * * * * * * * * *
 
 // setup function
-void stepInterface::setup()
+void stepInterface_class::setup()
 {
   setupPins();
 
@@ -36,7 +36,7 @@ void stepInterface::setup()
 }
 
 // activation function
-void stepInterface::activate()
+void stepInterface_class::activate()
 {
 
   // enable interrupt on dirPin
@@ -51,7 +51,7 @@ void stepInterface::activate()
 }
 
 // activation function
-void stepInterface::deactivate()
+void stepInterface_class::deactivate()
 {
 
   // disable EIC to count steps on stepPin
@@ -66,14 +66,14 @@ void stepInterface::deactivate()
 }
 
 /*
-int32_t stepInterface::getsteps()
+int32_t stepInterface_class::getsteps()
 {
   return steps;
 }
 */
 /*
 // return function to get the current steps
-void stepInterface::readsteps()
+void stepInterface_class::readsteps()
 {
   TC0->COUNT32.CTRLBSET.reg = TC_CTRLBSET_CMD_READSYNC; // Trigger a read synchronization on the COUNT register
   while (TC0->COUNT32.SYNCBUSY.bit.CTRLB)
@@ -84,7 +84,7 @@ void stepInterface::readsteps()
   steps = TC0->COUNT32.COUNT.reg; // Update Step Variable with content of TC0 COUNT register
 }*/
 
-int32_t stepInterface::readsteps()
+int32_t stepInterface_class::readsteps()
 {
   TC0->COUNT32.CTRLBSET.reg = TC_CTRLBSET_CMD_READSYNC; // Trigger a read synchronization on the COUNT register
   while (TC0->COUNT32.SYNCBUSY.bit.CTRLB)
@@ -97,7 +97,7 @@ int32_t stepInterface::readsteps()
 }
 
 // set function to set the current steps
-void stepInterface::writesteps(int32_t steps_)
+void stepInterface_class::writesteps(int32_t steps_)
 {
 
   steps = steps_;
@@ -112,42 +112,42 @@ void stepInterface::writesteps(int32_t steps_)
     ; // Wait for the COUNT register writ sychronization
 }
 
-void stepInterface::writeangle(float angle_)
+void stepInterface_class::writeangle(float angle_)
 {
   int32_t steps_ = (angle_ / (360.0 / (steps_per_revolution * microstepping))) + 0.5;
 
-  stepInterface::writesteps(steps_);
+  stepInterface_class::writesteps(steps_);
 }
 
 // set detection rules
-void stepInterface::setSensetype(uint8_t sensetype_)
+void stepInterface_class::setSensetype(uint8_t sensetype_)
 {
   sensetype = sensetype_;
 }
 
-void stepInterface::setAsync(bool async_)
+void stepInterface_class::setAsync(bool async_)
 {
   async = async;
 }
 
-void stepInterface::setDebounce(bool debounce_)
+void stepInterface_class::setDebounce(bool debounce_)
 {
   debounce = debounce;
 }
 
-void stepInterface::setFilter(bool filter_)
+void stepInterface_class::setFilter(bool filter_)
 {
   filter = filter_;
 }
 
-uint32_t stepInterface::getDirPin()
+uint32_t stepInterface_class::getDirPin()
 {
   return dirPin;
 }
 
 // PRIVATE METHODS  * * * * * * * * * * * * * * * * * * * *
 
-uint32_t stepInterface::getPortConfig(uint32_t pin)
+uint32_t stepInterface_class::getPortConfig(uint32_t pin)
 {
   uint32_t config;
   EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
@@ -164,7 +164,7 @@ uint32_t stepInterface::getPortConfig(uint32_t pin)
 
   return config;
 }
-uint32_t stepInterface::getposConfig(uint32_t pin)
+uint32_t stepInterface_class::getposConfig(uint32_t pin)
 {
 
   uint32_t pos;
@@ -185,7 +185,7 @@ uint32_t stepInterface::getposConfig(uint32_t pin)
 }
 
 // EIC setup funtion
-void stepInterface::setupEIC()
+void stepInterface_class::setupEIC()
 {
   uint32_t configPosition;
   uint32_t BitPosition;
@@ -228,7 +228,7 @@ void stepInterface::setupEIC()
 }
 
 // TC0 setup function
-void stepInterface::setupTC0()
+void stepInterface_class::setupTC0()
 {
   // *********** SETUP GCLK ***********
   MCLK->APBAMASK.reg |= MCLK_APBAMASK_TC0; // Activate timer TC0
@@ -247,7 +247,7 @@ void stepInterface::setupTC0()
 }
 
 // EVSYS setup function
-void stepInterface::setupEVSYS()
+void stepInterface_class::setupEVSYS()
 {
   // *********** SETUP GCLK ***********
   MCLK->APBBMASK.reg |= MCLK_APBBMASK_EVSYS; // Switch on the event system peripheral
@@ -266,7 +266,7 @@ void stepInterface::setupEVSYS()
                                   EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_x); // Set event generator (sender) as external interrupt x
 }
 
-void stepInterface::setupPins()
+void stepInterface_class::setupPins()
 {
   EPortType port;
   uint32_t pin;

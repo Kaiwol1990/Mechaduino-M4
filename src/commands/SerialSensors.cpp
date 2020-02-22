@@ -8,9 +8,9 @@
 void init_sensor_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd("temp", "returns the current coil Temepratur of the " ProductName, getTemperature);
-  myCommander.cmdAdd("tempCPU", "returns the current CPU Temepratur of the " ProductName, getCPUTemperature);
-  myCommander.cmdAdd("volt", "returns the current coil Voltage of the " ProductName, getVoltage);
+  Commander.cmdAdd("temp", "returns the current coil Temepratur of the " ProductName, getTemperature);
+  Commander.cmdAdd("tempCPU", "returns the current CPU Temepratur of the " ProductName, getCPUTemperature);
+  Commander.cmdAdd("volt", "returns the current coil Voltage of the " ProductName, getVoltage);
 }
 
 void getVoltage()

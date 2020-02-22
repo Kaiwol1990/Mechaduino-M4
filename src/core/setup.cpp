@@ -45,24 +45,24 @@ void setup()
 
   // Load User settings from flash
   Serial.print("setup user settings: ");
-  if (!mySettings.isValid())
+  if (!Settings.isValid())
   {
     // only needed for first execution after compiling
-    mySettings.loadDefaultSettings();
-    mySettings.setDefaultSlot(0);
-    mySettings.storeSettings(0);
-    mySettings.commit();
+    Settings.loadDefaultSettings();
+    Settings.setDefaultSlot(0);
+    Settings.storeSettings(0);
+    Settings.commit();
   }
   else
   {
-    mySettings.loadSettings(mySettings.defaultSlot);
+    Settings.loadSettings(Settings.defaultSlot);
   }
 
   // fullstep table
   Serial.print("setup AS5047: ");
-  myAS5047D.init(mySettings.fullsteps.data);
+  AS5047D.init(Settings.fullsteps.data);
 
-  if (!mySettings.checkFullsteps())
+  if (!Settings.checkFullsteps())
   {
     Serial.println("Fullsteps need to be calibrated!");
   }
@@ -75,22 +75,22 @@ void setup()
   setupPins();
   Serial.println("OK");
 
-  Serial.print("setup A4954: ");
-  myA4954.init();
-  myA4954.setTorque(mySettings.currentSettings.Irated, mySettings.currentSettings.Mmax, mySettings.currentSettings.iMax);
-  myA4954.output(0, 0);
+  Serial.print("setup A4954_class: ");
+  A4954.init();
+  A4954.setTorque(Settings.currentSettings.Irated, Settings.currentSettings.Mmax, Settings.currentSettings.iMax);
+  A4954.output(0, 0);
   Serial.println(" OK");
 
   Serial.print("setup StepInterface: ");
-  mystepInterface.setup();
+  stepInterface.setup();
   Serial.println("OK");
 
   // motion planning
   Serial.print("setup motion planner: ");
-  myPlanner.setMode(mode_init);
+  Planner.setMode(mode_init);
   Serial.println("OK");
 
-  if (mySettings.currentSettings.use_enable)
+  if (Settings.currentSettings.use_enable)
   {
     Serial.print("setup enable pin: ");
     enaInterrupt();
@@ -98,7 +98,7 @@ void setup()
   }
   else
   {
-    //myPID.enable();
+    //PID.enable();
   }
 
   Serial.print("setup ADC state machine: ");
@@ -106,8 +106,8 @@ void setup()
   Serial.println("OK");
 
   Serial.print("setup PID Controller: ");
-  myPID.setSampleFreq(FPID);
-  myPID.updateGains();
+  PID.setSampleFreq(FPID);
+  PID.updateGains();
   Serial.println("OK");
 
   Serial.print("setup Interrupts: ");
@@ -120,5 +120,5 @@ void setup()
   mysamd51TC5.enable();
   Serial.println("OK");
 
-  myCommander.init();
+  Commander.init();
 }

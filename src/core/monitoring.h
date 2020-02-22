@@ -5,30 +5,24 @@
 
 #include <Arduino.h>
 
-/********************************* Typedefs and struct definitions *********************************/
-typedef union {
-    struct
-    {
-        volatile uint8_t COILTEMP : 1;      /* bit:      0 Motor Coil Overtemp   */
-        volatile uint8_t DRIVERTEMP : 1;    /* bit:      1 Motor Coil Overtemp   */
-        volatile uint8_t UNDERVOLTAGE : 1;  /* bit:      2 Motor Coil Overtemp   */
-        volatile uint8_t ENCODER : 1;       /* bit:      3 Motor Coil Overtemp   */
-        volatile uint8_t : 3;               /* bit:  4.. 6 Motor Coil Overtemp   */
-        volatile uint8_t EXTERNALERROR : 1; /* bit:      7 Motor Coil Overtemp   */
-    } bit;                                  /* Struct used for bit acces   */
-    uint8_t reg;                            /* Type used for register acces */
-} MONITORING_ERROR_Type;
-
-/*
-typedef struct
-{
-    volatile MONITORING_ERROR_Type ERROR;
-} MONITORING_Type;
-*/
-
 /******************************************* CLASS ************************************************/
 class Monitoring_class
 {
+    // union that contains all relevant error bits
+    typedef union MONITORING_ERROR {
+        struct
+        {
+            volatile uint16_t COILUNDERTEMP : 1; /* bit:      0 Motor coil 0vertemp   */
+            volatile uint16_t COILOVERTEMP : 1;  /* bit:      1 Motor coil 0vertemp   */
+            volatile uint16_t DRIVERTEMP : 1;    /* bit:      2 Motor driver overtemp   */
+            volatile uint16_t UNDERVOLTAGE : 1;  /* bit:      3 Bus voltage to low   */
+            volatile uint16_t ENCODER : 1;       /* bit:      4 Encoder error  */
+            volatile uint16_t EXTERNALERROR : 1; /* bit:      5 External error bit -> Error pin */
+            volatile uint16_t : 10;              /* bit: 6.. 15 Reserved   */
+        } bit;                                   /* Struct used for bit acces   */
+        uint16_t reg;                            /* Type used for register acces */
+    } MONITORING_ERROR_Type;
+
 public:
     // variables
     MONITORING_ERROR_Type ERROR;

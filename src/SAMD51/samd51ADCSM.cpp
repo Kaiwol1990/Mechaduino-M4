@@ -291,7 +291,7 @@ void samd51ADCSM::calcLookup()
     // Inverse Steinhart equation
     temp = valueRead / THERMISTORNOMINAL;
     temp = log(temp);
-    temp = temp / mySettings.currentSettings.beta;
+    temp = temp / Settings.currentSettings.beta;
     temp = temp + (1.0 / (25.0 + 273.15));
     temp = 1.0 / temp;
 

@@ -16,7 +16,7 @@
 
 void init_menu()
 {
-  myCommander.cmdAdd(help_cmd, "display all available commands", Serial_menu);
+  Commander.cmdAdd(help_cmd, "display all available commands", Serial_menu);
 
   init_settings_menu();
   init_movement_menu();
@@ -34,5 +34,5 @@ void Serial_menu()
   Serial.println("---------------");
   Serial.println("Add -help to a command to get a detailed explenation!");
   Serial.println(" ");
-  myCommander.printlist();
+  Commander.printlist();
 }

@@ -9,12 +9,12 @@
 void init_pid_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd("gains", "set pid gains", set_gains);
+  Commander.cmdAdd("gains", "set pid gains", set_gains);
 }
 
 void set_gains()
 {
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Menu to modify the pid parameter of the motor");
     Serial.println(" ");
@@ -32,22 +32,22 @@ void set_gains()
     return;
   }
   // set corresponding gain in the current setting slot
-  mySettings.currentSettings.Kp = myCommander.return_float_argument("-Kp", mySettings.currentSettings.Kp, 0.0, 100.0);
-  mySettings.currentSettings.Kp = myCommander.return_float_argument("-Kp", mySettings.currentSettings.Kp, 0.0, 100.0);
-  mySettings.currentSettings.Ki = myCommander.return_float_argument("-Ki", mySettings.currentSettings.Ki, 0.0, 1000.0);
-  mySettings.currentSettings.Kd = myCommander.return_float_argument("-Kd", mySettings.currentSettings.Kd, 0.0, 100.0);
-  mySettings.currentSettings.Kf = myCommander.return_float_argument("-Kf", mySettings.currentSettings.Kf, 0.0, 100.0);
-  mySettings.currentSettings.Kv = myCommander.return_float_argument("-Kv", mySettings.currentSettings.Kv, 0.0, 100.0);
-  mySettings.currentSettings.Kac = myCommander.return_float_argument("-Kac", mySettings.currentSettings.Kac, 0.0, 100.0);
+  Settings.currentSettings.Kp = Commander.return_float_argument("-Kp", Settings.currentSettings.Kp, 0.0, 100.0);
+  Settings.currentSettings.Kp = Commander.return_float_argument("-Kp", Settings.currentSettings.Kp, 0.0, 100.0);
+  Settings.currentSettings.Ki = Commander.return_float_argument("-Ki", Settings.currentSettings.Ki, 0.0, 1000.0);
+  Settings.currentSettings.Kd = Commander.return_float_argument("-Kd", Settings.currentSettings.Kd, 0.0, 100.0);
+  Settings.currentSettings.Kf = Commander.return_float_argument("-Kf", Settings.currentSettings.Kf, 0.0, 100.0);
+  Settings.currentSettings.Kv = Commander.return_float_argument("-Kv", Settings.currentSettings.Kv, 0.0, 100.0);
+  Settings.currentSettings.Kac = Commander.return_float_argument("-Kac", Settings.currentSettings.Kac, 0.0, 100.0);
 
   // print report of the pid settings
-  if (myCommander.check_argument("-show"))
+  if (Commander.check_argument("-show"))
   {
     reportPID();
   }
 
   // upadte controller loop
-  myPID.updateGains();
+  PID.updateGains();
 }
 
 void reportPID()
@@ -57,26 +57,26 @@ void reportPID()
   Serial.println("--------------------------");
 
   Serial.print("Kp        = ");
-  Serial.println(mySettings.currentSettings.Kp);
+  Serial.println(Settings.currentSettings.Kp);
 
   Serial.print("Ki        = ");
-  Serial.println(mySettings.currentSettings.Ki);
+  Serial.println(Settings.currentSettings.Ki);
 
   Serial.print("Kd        = ");
-  Serial.println(mySettings.currentSettings.Kd);
+  Serial.println(Settings.currentSettings.Kd);
 
   Serial.print("Kf        = ");
-  Serial.println(mySettings.currentSettings.Kf);
+  Serial.println(Settings.currentSettings.Kf);
 
   Serial.print("Kv        = ");
-  Serial.println(mySettings.currentSettings.Kv);
+  Serial.println(Settings.currentSettings.Kv);
 
   Serial.print("Kac       = ");
-  Serial.println(mySettings.currentSettings.Kac);
+  Serial.println(Settings.currentSettings.Kac);
 
   Serial.print("Mmax      = ");
-  Serial.println(mySettings.currentSettings.Mmax);
+  Serial.println(Settings.currentSettings.Mmax);
 
   Serial.print("Int Limit = ");
-  Serial.println(mySettings.currentSettings.IntegralLimit);
+  Serial.println(Settings.currentSettings.IntegralLimit);
 }

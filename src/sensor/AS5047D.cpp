@@ -1,6 +1,6 @@
 
 
-#include "AS5047D.h"
+#include "sensor/AS5047D.h"
 #include <SPI.h>
 
 #include "SAMD51/wiringMechaduino.h"
@@ -9,15 +9,17 @@
 
 static Stream *stream;
 
-// CONSTRUCTOR AND DESTRUCTOR * * * * * * * * * * * * * * *
-AS5047D::AS5047D(Stream *str, EPortType port_, uint32_t pin_) : port(port_),
-                                                                pin(pin_)
+/********************************************* CONSTRUCTOR **************************************************/
+AS5047D_class::AS5047D_class(Stream *str, EPortType port_, uint32_t pin_) : port(port_),
+                                                                            pin(pin_)
 {
   stream = str;
 }
 
-// PUBLIC METHODS * * * * * * * * * * * * * * * * * * * * *
-void AS5047D::init(int16_t *fullsteps)
+/******************************************* PUBLIC METHODS ************************************************/
+
+// init the sensor
+void AS5047D_class::init(int16_t *fullsteps)
 {
 
   // set CS as OUTPUT
@@ -26,8 +28,8 @@ void AS5047D::init(int16_t *fullsteps)
   // write CS HIGH
   digitalFASTWrite(port, pin, HIGH);
 
-  // SPI settings for the AS5047D
-  //AS5047D SPI uses mode=1 (CPOL=0, CPHA=1)
+  // SPI settings for the AS5047D_class
+  //AS5047D_class SPI uses mode=1 (CPOL=0, CPHA=1)
   SPISettings settingsA(10000000, MSBFIRST, SPI_MODE1);
 
   // begin SPI bus
@@ -43,7 +45,8 @@ void AS5047D::init(int16_t *fullsteps)
   initTable(fullsteps);
 }
 
-uint16_t AS5047D::readDigits()
+// read the angle in digits without the lookup table
+uint16_t AS5047D_class::readDigits()
 {
   uint16_t data;
 
@@ -56,7 +59,8 @@ uint16_t AS5047D::readDigits()
   return data;
 }
 
-void AS5047D::readAngle()
+// start a new angle reading
+void AS5047D_class::readAngle()
 {
   uint16_t data;
   float angle;
@@ -95,19 +99,21 @@ void AS5047D::readAngle()
   currentAngle = angle;
 }
 
-float AS5047D::getAngle()
+// return the current angle of the magnet
+float AS5047D_class::getAngle()
 {
   return currentAngle;
 }
 
-float AS5047D::measureNoise()
+// measure encoder noise
+float AS5047D_class::measureNoise()
 {
   float points[500] = {0};
 
   for (uint32_t i = 0; i < 500; i++)
   {
     delayMicroseconds(200);
-    points[i] = AS5047D::readDigits();
+    points[i] = AS5047D_class::readDigits();
   }
 
   float highest = 0;
@@ -128,26 +134,25 @@ float AS5047D::measureNoise()
   return (360.0 * abs(highest - lowest)) / 16384.0;
 }
 
-void AS5047D::readDIAAGC()
+// read DIAAGC register
+void AS5047D_class::readDIAAGC()
 {
-  uint16_t registerValue;
+  // Variables
+  DIAAGC_Type DIAAGC;
 
-  registerValue = readRegister(0x3FFC);
-  registerValue = readRegister(0x0000);
+  // flush SPI register
+  AS5047D_class::readRegister(0x3FFC);
 
-  // Slice single bits from register Value
-  bool MAGL = bitRead(registerValue, 11);            //  11 Diagnostics: Magnetic field strength too low; AGC=0xFF
-  bool MAGH = bitRead(registerValue, 10);            //  10 Diagnostics: Magnetic field strength too high; AGC=0x00
-  bool COF = bitRead(registerValue, 9);              //   9 Diagnostics: CORDIC overflow
-  bool LF = bitRead(registerValue, 8);               //   8 Diagnostics: Offset compensation, LF=0:internal offset loops not ready regulated, LF=1:internal offset loop finished
-  uint32_t AGC = registerValue & 0B0000000011111111; // 7:0 Automatic gain control value
+  // read register
+  DIAAGC.reg = AS5047D_class::readRegister(0x0000);
 
+  // output
   stream->println("Check DIAAGC register (0x3FFC)");
   stream->print("Raw register value: ");
-  stream->println(registerValue & 0B0011111111111111, BIN);
+  stream->println(DIAAGC.reg, BIN);
   stream->print("MAGL: ");
-  stream->print(MAGL);
-  if (MAGL)
+  stream->print(DIAAGC.bit.MAGL);
+  if (DIAAGC.bit.MAGL)
   {
     stream->println(": Magnetic field strength too low!");
   }
@@ -157,8 +162,8 @@ void AS5047D::readDIAAGC()
   }
 
   stream->print("MAGH: ");
-  stream->print(MAGH);
-  if (MAGH)
+  stream->print(DIAAGC.bit.MAGH);
+  if (DIAAGC.bit.MAGH)
   {
     stream->println(": Magnetic field strength too high!");
   }
@@ -168,8 +173,8 @@ void AS5047D::readDIAAGC()
   }
 
   stream->print("COF: ");
-  stream->print(COF);
-  if (COF)
+  stream->print(DIAAGC.bit.COF);
+  if (DIAAGC.bit.COF)
   {
     stream->println(": CORDIC overflow!");
   }
@@ -179,8 +184,8 @@ void AS5047D::readDIAAGC()
   }
 
   stream->print("LF: ");
-  stream->print(LF);
-  if (LF)
+  stream->print(DIAAGC.bit.LF);
+  if (DIAAGC.bit.LF)
   {
     stream->println(": Offset compensation finished!");
   }
@@ -190,32 +195,33 @@ void AS5047D::readDIAAGC()
   }
 
   stream->print("AGC: Automatic gain control: ");
-  stream->println(AGC);
+  stream->println(DIAAGC.bit.AGC);
   stream->print("Guessed magnetic field strength: ");
-  stream->print(70 - (35 * (float)AGC / 255.0));
+  stream->print(70 - (35 * (float)DIAAGC.bit.AGC / 255.0));
   stream->println(" mT");
 
   stream->println(" ");
 }
 
-void AS5047D::readERRFL()
+// read ERRFL register
+void AS5047D_class::readERRFL()
 {
-  uint16_t registerValue;
+  // variables
+  ERRFL_Type ERRFL;
 
-  registerValue = readRegister(0x0001);
-  registerValue = readRegister(0x0000);
+  // flush SPI
+  AS5047D_class::readRegister(0x0001);
 
-  //                          0B0011111111111111
-  bool PARERR = registerValue & 0B0000000000000100;  //   2 Diagnostics: Parity error
-  bool INVCOMM = registerValue & 0B0000000000000010; //   1 Diagnostics: Invalid command error: set to 1 by reading or writing an invalid register address
-  bool FRERR = registerValue & 0B0000000000000001;   //   0 Diagnostics: Framing error: is set to 1 when a non-compliant SPI frame is detected
+  // read register
+  ERRFL.reg = readRegister(0x0000);
 
+  // output
   stream->println("Check ERRFL register (0x0001)");
   stream->print("Raw register value: ");
-  stream->println(registerValue & 0B0011111111111111, BIN);
+  stream->println(ERRFL.reg & 0B0011111111111111, BIN);
   stream->print("PARERR: ");
-  stream->print(PARERR);
-  if (PARERR)
+  stream->print(ERRFL.bit.PARERR);
+  if (ERRFL.bit.PARERR)
   {
     stream->println(": Parity error occured!");
   }
@@ -225,8 +231,8 @@ void AS5047D::readERRFL()
   }
 
   stream->print("INVCOMM: ");
-  stream->print(INVCOMM);
-  if (INVCOMM)
+  stream->print(ERRFL.bit.INVCOMM);
+  if (ERRFL.bit.INVCOMM)
   {
     stream->println(": Invalid command error!");
   }
@@ -236,8 +242,8 @@ void AS5047D::readERRFL()
   }
 
   stream->print("FRERR: ");
-  stream->print(FRERR);
-  if (FRERR)
+  stream->print(ERRFL.bit.FRERR);
+  if (ERRFL.bit.FRERR)
   {
     stream->println(": Framing error occured!");
   }
@@ -249,11 +255,12 @@ void AS5047D::readERRFL()
   stream->println(" ");
 }
 
-void AS5047D::initTable(int16_t *fullsteps)
+// calculate the lookup table based on the fullstep readings
+void AS5047D_class::initTable(int16_t *fullsteps)
 {
 
   // calculate the ticks between the fullsteps
-  float ticks[mySettings.currentSettings.steps_per_Revolution];
+  float ticks[Settings.currentSettings.steps_per_Revolution];
   int32_t counter = 0;
 
   int32_t low;
@@ -262,14 +269,14 @@ void AS5047D::initTable(int16_t *fullsteps)
   int32_t jStart = 0;
   int32_t stepNo = 0;
 
-  for (int32_t i = 0; i < mySettings.currentSettings.steps_per_Revolution; i++)
+  for (int32_t i = 0; i < Settings.currentSettings.steps_per_Revolution; i++)
   {
     low = i;
     high = i + 1;
 
-    if (high >= mySettings.currentSettings.steps_per_Revolution)
+    if (high >= Settings.currentSettings.steps_per_Revolution)
     {
-      high = high - mySettings.currentSettings.steps_per_Revolution;
+      high = high - Settings.currentSettings.steps_per_Revolution;
     }
 
     ticks[i] = fullsteps[high] - fullsteps[low];
@@ -299,12 +306,12 @@ void AS5047D::initTable(int16_t *fullsteps)
 
   int32_t p = 0;
 
-  for (int32_t i = iStart; i < (iStart + mySettings.currentSettings.steps_per_Revolution + 1); i++)
+  for (int32_t i = iStart; i < (iStart + Settings.currentSettings.steps_per_Revolution + 1); i++)
   {
 
-    if (i >= mySettings.currentSettings.steps_per_Revolution)
+    if (i >= Settings.currentSettings.steps_per_Revolution)
     {
-      tick = ticks[i - mySettings.currentSettings.steps_per_Revolution];
+      tick = ticks[i - Settings.currentSettings.steps_per_Revolution];
     }
     else
     {
@@ -317,7 +324,7 @@ void AS5047D::initTable(int16_t *fullsteps)
       {
         counter += 1;
 
-        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
+        lookupAngle = floatmod((Settings.PA * i) + ((Settings.PA * j) / tick), 360);
 
         lookuptable[p] = lookupAngle;
 
@@ -325,13 +332,13 @@ void AS5047D::initTable(int16_t *fullsteps)
       }
     }
 
-    else if (i == (iStart + mySettings.currentSettings.steps_per_Revolution))
+    else if (i == (iStart + Settings.currentSettings.steps_per_Revolution))
     {
       for (int32_t j = 0; j < jStart; j++)
       {
         counter += 1;
 
-        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
+        lookupAngle = floatmod((Settings.PA * i) + ((Settings.PA * j) / tick), 360);
 
         lookuptable[p] = lookupAngle;
 
@@ -344,7 +351,7 @@ void AS5047D::initTable(int16_t *fullsteps)
       {
         counter += 1;
 
-        lookupAngle = floatmod((mySettings.PA * i) + ((mySettings.PA * j) / tick), 360);
+        lookupAngle = floatmod((Settings.PA * i) + ((Settings.PA * j) / tick), 360);
 
         lookuptable[p] = lookupAngle;
 
@@ -354,9 +361,10 @@ void AS5047D::initTable(int16_t *fullsteps)
   }
 }
 
-// PRIVATE METHODS  * * * * * * * * * * * * * * * * * * * *
+/******************************************* PRIVATE METHODS ************************************************/
 
-inline uint16_t AS5047D::getParity(uint16_t payload, uint8_t bitcount)
+// calculate parity bit
+inline uint16_t AS5047D_class::getParity(uint16_t payload, uint8_t bitcount)
 {
   uint16_t parity = 0;
   for (byte i = 0; i <= bitcount; i++)
@@ -368,7 +376,8 @@ inline uint16_t AS5047D::getParity(uint16_t payload, uint8_t bitcount)
   return parity;
 }
 
-inline uint16_t AS5047D::readRegister(uint16_t regAdress)
+// read register from chip with given adress
+inline uint16_t AS5047D_class::readRegister(uint16_t regAdress)
 {
   uint16_t registerValue;
   uint16_t parity;

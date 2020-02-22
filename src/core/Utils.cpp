@@ -8,16 +8,16 @@
 
 void enaInterrupt()
 {
-  if (mySettings.currentSettings.use_enable)
+  if (Settings.currentSettings.use_enable)
   {
     if (digitalRead(ena_pin))
     { // check if ena_pin is HIGH
-      myPID.disable();
+      PID.disable();
     }
     else
     {
-      //myPID.enable();
-      myPID.disable();
+      //PID.enable();
+      PID.disable();
     }
   }
 }

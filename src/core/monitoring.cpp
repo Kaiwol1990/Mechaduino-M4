@@ -12,7 +12,8 @@ Monitoring_class::Monitoring_class()
 void Monitoring_class::check()
 {
   Monitoring_class::ERROR.bit.UNDERVOLTAGE = mysamd51ADCSM.getV() < 10.0;
-  Monitoring_class::ERROR.bit.COILTEMP = mysamd51ADCSM.getT() > 50.0;
+  Monitoring_class::ERROR.bit.COILOVERTEMP = mysamd51ADCSM.getT() > 50.0;
+  Monitoring_class::ERROR.bit.COILUNDERTEMP = mysamd51ADCSM.getT() < -15.0;
 }
 
 void Monitoring_class::printError()
@@ -25,9 +26,14 @@ void Monitoring_class::printError()
     Serial.println("Bus voltage below 10.0V!");
   }
 
-  if (Monitoring_class::ERROR.bit.COILTEMP)
+  if (Monitoring_class::ERROR.bit.COILOVERTEMP)
   {
     Serial.println("Coil temperature above 45.0 °C");
+  }
+
+  if (Monitoring_class::ERROR.bit.COILUNDERTEMP)
+  {
+    Serial.println("Coil temperature below -15.0 °C");
   }
 }
 

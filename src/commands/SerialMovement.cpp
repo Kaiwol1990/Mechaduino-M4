@@ -10,15 +10,15 @@
 void init_movement_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd("motion", "set speed and acceleration", set_motion);
-  myCommander.cmdAdd(step_response_command, "execute a step response", step_response);
-  myCommander.cmdAdd("spline", "start spline movement", splineMovement);
-  myCommander.cmdAdd("pos", "print current position", reportPostition);
+  Commander.cmdAdd("motion", "set speed and acceleration", set_motion);
+  Commander.cmdAdd(step_response_command, "execute a step response", step_response);
+  Commander.cmdAdd("spline", "start spline movement", splineMovement);
+  Commander.cmdAdd("pos", "print current position", reportPostition);
 }
 
 void reportPostition()
 {
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Prints the current position and target on the console");
     Serial.println(" ");
@@ -33,7 +33,7 @@ void reportPostition()
 
 void splineMovement()
 {
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Menu to execute spline movement with optional velocity and acceleration");
     Serial.println(" ");
@@ -47,18 +47,18 @@ void splineMovement()
   }
 
   // check for given velocity
-  velLimit = myCommander.return_float_argument("-v", velLimit, 100, 5000);
-  accLimit = myCommander.return_float_argument("-a", accLimit, 100, 50000);
+  velLimit = Commander.return_float_argument("-v", velLimit, 100, 5000);
+  accLimit = Commander.return_float_argument("-a", accLimit, 100, 50000);
 
   // calculate Target
-  steps = ((myCommander.return_float_argument("-r", r, -100000.0, 100000.0) * mySettings.currentSettings.steps_per_Revolution * mySettings.currentSettings.microstepping) / 360.0) + 0.5;
-  mystepInterface.writesteps(steps);
+  steps = ((Commander.return_float_argument("-r", r, -100000.0, 100000.0) * Settings.currentSettings.steps_per_Revolution * Settings.currentSettings.microstepping) / 360.0) + 0.5;
+  stepInterface.writesteps(steps);
 }
 
 void set_motion()
 {
-  //if (myCommander.check_argument(args, arg_cnt, help_subcmd))
-  if (myCommander.check_argument(help_subcmd))
+  //if (Commander.check_argument(args, arg_cnt, help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Menu to maximal velocity and acceleration");
     Serial.println(" ");
@@ -71,30 +71,30 @@ void set_motion()
     return;
   }
 
-  float velLimit_temp = myCommander.return_float_argument("-v", velLimit, 1, 1000000);
-  float accLimit_temp = myCommander.return_float_argument("-acc", accLimit, 1, 1000000);
-  uint8_t mode = myCommander.return_float_argument("-m", myPlanner.getMode(), 0, 2);
+  float velLimit_temp = Commander.return_float_argument("-v", velLimit, 1, 1000000);
+  float accLimit_temp = Commander.return_float_argument("-acc", accLimit, 1, 1000000);
+  uint8_t mode = Commander.return_float_argument("-m", Planner.getMode(), 0, 2);
   velLimit = velLimit_temp;
   accLimit = accLimit_temp;
 
-  if (mode != myPlanner.getMode())
+  if (mode != Planner.getMode())
   {
-    if (myPID.getState())
+    if (PID.getState())
     {
       Serial.println("Can't change motion planing while PID loop ist active!");
     }
     else
     {
       Serial.println("Changing motion planningmode");
-      myPlanner.setMode(mode);
+      Planner.setMode(mode);
     }
   }
 }
 
 void step_response()
 {
-  //if (myCommander.check_argument(args, arg_cnt, help_subcmd))
-  if (myCommander.check_argument(help_subcmd))
+  //if (Commander.check_argument(args, arg_cnt, help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Menu execute a step response");
     Serial.println(" ");
@@ -109,11 +109,11 @@ void step_response()
 
   Serial.println(step_response_header);
 
-  int response_steps = ((myCommander.return_float_argument("-r", r, -1000.0, 1000.0) * mySettings.currentSettings.steps_per_Revolution * mySettings.currentSettings.microstepping) / 360.0) + 0.5;
+  int response_steps = ((Commander.return_float_argument("-r", r, -1000.0, 1000.0) * Settings.currentSettings.steps_per_Revolution * Settings.currentSettings.microstepping) / 360.0) + 0.5;
 
   // check for given velocity
-  velLimit = myCommander.return_float_argument("-v", velLimit, 100, 5000);
-  accLimit = myCommander.return_float_argument("-a", accLimit, 100, 50000);
+  velLimit = Commander.return_float_argument("-v", velLimit, 100, 5000);
+  accLimit = Commander.return_float_argument("-a", accLimit, 100, 50000);
 
   int frequency = 5000;
 
@@ -136,7 +136,7 @@ void step_response()
   float dt = 1000000.0 / (float)frequency;
 
   // calculate the target vector
-  target[0] = mystepInterface.readsteps();
+  target[0] = stepInterface.readsteps();
   for (int i = 1; i < 2000; i++)
   {
     target[i] = target[i - 1];
@@ -149,8 +149,8 @@ void step_response()
 
   dir = true;
   //enabled = true;
-  myPID.enable();
-  mystepInterface.writesteps(target[0]);
+  PID.enable();
+  stepInterface.writesteps(target[0]);
   delay(2000);
   while (counter < 2000)
   {
@@ -160,9 +160,9 @@ void step_response()
     {
       next_time = current_time + dt;
 
-      answer[counter] = myAS5047D.getAngle();
+      answer[counter] = AS5047D.getAngle();
       effort[counter] = u;
-      mystepInterface.writesteps(target[counter]);
+      stepInterface.writesteps(target[counter]);
       target[counter] = r;
       //steps = target[counter];
 
@@ -184,6 +184,6 @@ void step_response()
 
   // set parameters back to the values before the
   //enabled = last_enabled;
-  myPID.disable();
+  PID.disable();
   dir = last_dir;
 }

@@ -113,16 +113,16 @@ void PIDControler::updateGains()
   PIDControler::disable();
 
   // compute new gains based on current settings
-  myKp = mySettings.currentSettings.Kp;
-  myKi = mySettings.currentSettings.Ki * sampleTime;
-  myKd = mySettings.currentSettings.Kd / sampleTime;
+  myKp = Settings.currentSettings.Kp;
+  myKi = Settings.currentSettings.Ki * sampleTime;
+  myKd = Settings.currentSettings.Kd / sampleTime;
 
-  myKf = mySettings.currentSettings.Kf;
-  myKv = mySettings.currentSettings.Kv;
-  myKac = mySettings.currentSettings.Kac;
+  myKf = Settings.currentSettings.Kf;
+  myKv = Settings.currentSettings.Kv;
+  myKac = Settings.currentSettings.Kac;
 
-  OutputLimit = mySettings.currentSettings.Mmax;
-  IntegrationLimit = mySettings.currentSettings.IntegralLimit;
+  OutputLimit = Settings.currentSettings.Mmax;
+  IntegrationLimit = Settings.currentSettings.IntegralLimit;
 }
 
 void PIDControler::setState(bool enabled_)

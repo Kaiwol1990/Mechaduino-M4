@@ -4,7 +4,7 @@
 
 //---------------------------------------------- Hardware Section ----------------------------------------------
 //---------------------------------------------------------------------------------------------------------------
-// max current per coil 2000 mA for A4954 driver should be lower (thermal conditions)
+// max current per coil 2000 mA for A4954_class driver should be lower (thermal conditions)
 #define Init_iMAX 2000
 
 //set to 1 if you want to use a enable pin

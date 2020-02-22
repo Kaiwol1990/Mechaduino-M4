@@ -14,11 +14,11 @@
 void init_tools_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd(reset_command, "reset the Mechaduino", SoftReset);
-  myCommander.cmdAdd("loop", "measure the maximal frequency", get_max_frequency);
-  myCommander.cmdAdd("noise", "measure the encoder noise", measureNoise);
-  myCommander.cmdAdd(state_command, "get current state", state);
-  myCommander.cmdAdd("diagnose", "get current state", diagnose);
+  Commander.cmdAdd(reset_command, "reset the Mechaduino", SoftReset);
+  Commander.cmdAdd("loop", "measure the maximal frequency", get_max_frequency);
+  Commander.cmdAdd("noise", "measure the encoder noise", measureNoise);
+  Commander.cmdAdd(state_command, "get current state", state);
+  Commander.cmdAdd("diagnose", "get current state", diagnose);
 }
 void diagnose()
 {
@@ -30,8 +30,8 @@ void diagnose()
 
   Serial.println("Reading Encoder Diagnostics");
   Serial.println("---------------------------");
-  myAS5047D.readDIAAGC();
-  myAS5047D.readERRFL();
+  AS5047D.readDIAAGC();
+  AS5047D.readERRFL();
 
   Serial.println("Reading Temperature");
   Serial.println("---------------------------");
@@ -54,7 +54,7 @@ void measureNoise()
   mysamd51TC4.disable();
   mysamd51TC5.disable();
 
-  float temp = myAS5047D.measureNoise();
+  float temp = AS5047D.measureNoise();
 
   Serial.print("Encoder noise in deg: ");
   Serial.println(temp);
@@ -66,7 +66,7 @@ void measureNoise()
 void state()
 {
   Serial.println(state_header);
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Menu to set the Mechaduino to a specific state");
     Serial.println(" ");
@@ -79,28 +79,28 @@ void state()
     return;
   }
 
-  if (myCommander.check_argument("-off"))
+  if (Commander.check_argument("-off"))
   {
     Serial.println("disabling");
-    myPID.disable();
+    PID.disable();
   }
 
-  if (myCommander.check_argument("-on"))
+  if (Commander.check_argument("-on"))
   {
     Serial.println("enabling");
-    myPID.enable();
+    PID.enable();
   }
 
-  if (myCommander.check_argument("-show"))
+  if (Commander.check_argument("-show"))
   {
     Serial.print(" Motor state = ");
-    Serial.println(myPID.getState());
+    Serial.println(PID.getState());
   }
 }
 
 void SoftReset()
 {
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Resets the Mechaduino. The Serialloop will be closed!");
     Serial.println(" ");
@@ -112,7 +112,7 @@ void SoftReset()
 
 void get_max_frequency()
 {
-  if (myCommander.check_argument(help_subcmd))
+  if (Commander.check_argument(help_subcmd))
   {
     Serial.println("Calculates the maximal possbile PID frequency of the Mechaduino");
     Serial.println(" ");
@@ -123,7 +123,7 @@ void get_max_frequency()
   uint32_t max_counter = 10000;
   float frequency[10];
 
-  myPID.enable();
+  PID.enable();
 
   uint32_t starting_test = micros();
 
@@ -145,7 +145,7 @@ void get_max_frequency()
     Serial.println(frequency[k]);
   }
 
-  myPID.disable();
+  PID.disable();
 
   float mean = 0.0;
   for (uint8_t k = 0; k < 10; k++)

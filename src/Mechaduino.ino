@@ -1,7 +1,7 @@
 /*
   Mechaduino Firmware  --multi file branch
 
-  SAM21D51 (Adafruit Metro M4 compatible), AS5047 encoder, A4954 driver
+  SAM21D51 (Adafruit Metro M4 compatible), AS5047 encoder, A4954_class driver
 
 
 
@@ -31,5 +31,5 @@ void loop()
 
   // nothing to do here
   // all commands are handled via TC interrupts
-  myCommander.cmdPoll();
+  Commander.cmdPoll();
 }

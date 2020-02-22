@@ -13,42 +13,42 @@ void ControlerLoop()
   // -------------------------------------
   // -      read the current angle       -
   // -------------------------------------
-  myAS5047D.readAngle();
-  y = myAS5047D.getAngle();
+  AS5047D.readAngle();
+  y = AS5047D.getAngle();
 
   // -------------------------------------
   // -         read step register        -
   // -------------------------------------
-  steps = mystepInterface.readsteps();
+  steps = stepInterface.readsteps();
 
   // -------------------------------------
   // -           Motion planing          -
   // -------------------------------------
-  r = myPlanner.setTarget(mySettings.stepangle * (float)steps);
+  r = Planner.setTarget(Settings.stepangle * (float)steps);
 
   // -------------------------------------
   // -       Reset if not enabled       -
   // -------------------------------------
-  if (!myPID.getState())
+  if (!PID.getState())
   {
-    mystepInterface.writeangle(y);
+    stepInterface.writeangle(y);
   }
 
   // -------------------------------------
   // -           PID loop           -
   // -------------------------------------
-  myPID.compute();
+  PID.compute();
 
   // -------------------------------------
   // -         Current Controller        -
   // -------------------------------------
   if (Monitoring.errorOccured())
   {
-    myA4954.output(y, 0);
+    A4954.output(y, 0);
   }
   else
   {
-    myA4954.output(y, u);
+    A4954.output(y, u);
   }
 }
 

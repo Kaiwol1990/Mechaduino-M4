@@ -12,7 +12,7 @@
 #define M_Pi 3.141592653589793115997963
 #define deg2rad M_Pi / 180.0
 
-A4954::A4954(uint32_t pinIN1_, uint32_t pinIN2_, uint32_t pinIN3_, uint32_t pinIN4_, uint32_t pinDAC1_, uint32_t pinDAC2_)
+A4954_class::A4954_class(uint32_t pinIN1_, uint32_t pinIN2_, uint32_t pinIN3_, uint32_t pinIN4_, uint32_t pinDAC1_, uint32_t pinDAC2_)
 {
   pinDAC2 = pinDAC2_;
   pinDAC1 = pinDAC1_;
@@ -22,14 +22,14 @@ A4954::A4954(uint32_t pinIN1_, uint32_t pinIN2_, uint32_t pinIN3_, uint32_t pinI
   pinIN1 = pinIN1_;
 }
 
-void A4954::init()
+void A4954_class::init()
 {
   EPortType port = PORTA;
 
   analogWriteResolution(12);
 
   // calculate phase multiplier
-  phase_multiplier = ((10.0 * mySettings.currentSettings.steps_per_Revolution) / 4.0);
+  phase_multiplier = ((10.0 * Settings.currentSettings.steps_per_Revolution) / 4.0);
 
   // set pin directions
   digitalFASTpinMode(port, pinIN1, OUTPUT);
@@ -53,7 +53,7 @@ void A4954::init()
   calcLookup();
 }
 
-void A4954::setTorque(float I_rated, float M_max, float iMAX)
+void A4954_class::setTorque(float I_rated, float M_max, float iMAX)
 {
   // calculate the Gain to get from Torque to DAC digits. This is so we can use torque as the PID controller output
   // Example:
@@ -73,8 +73,8 @@ void A4954::setTorque(float I_rated, float M_max, float iMAX)
   tMax = M_max * iMAX / I_rated;
 }
 
-//void A4954::output(float electric_angle, float effort, bool enabled) {
-void A4954::output(float angle, float effort)
+//void A4954_class::output(float electric_angle, float effort, bool enabled) {
+void A4954_class::output(float angle, float effort)
 {
   //variables
   float Ialpha;
@@ -83,7 +83,7 @@ void A4954::output(float angle, float effort)
   uint16_t lookupIdx;
 
   // direction setting
-  if (mySettings.currentSettings.invert)
+  if (Settings.currentSettings.invert)
   {
     angle = -angle;
   }
@@ -115,11 +115,11 @@ void A4954::output(float angle, float effort)
   float phaseAdvance;
   if (effort >= 0)
   {
-    phaseAdvance = mySettings.PA;
+    phaseAdvance = Settings.PA;
   }
   else
   {
-    phaseAdvance = -mySettings.PA;
+    phaseAdvance = -Settings.PA;
   }
   pole_angle = mod(-(phase_multiplier * (angle + phaseAdvance)), 3600);
 */
@@ -135,7 +135,7 @@ void A4954::output(float angle, float effort)
   writeDACs(Ialpha, Ibeta);
 }
 
-void A4954::outputOpenloop(float angle, float effort)
+void A4954_class::outputOpenloop(float angle, float effort)
 {
   // variables
   float Ialpha;
@@ -143,7 +143,7 @@ void A4954::outputOpenloop(float angle, float effort)
   uint32_t pole_angle;
 
   // direction setting
-  if (mySettings.currentSettings.invert)
+  if (Settings.currentSettings.invert)
   {
     angle = -angle;
   }
@@ -172,7 +172,7 @@ void A4954::outputOpenloop(float angle, float effort)
   writeDACs(Ialpha, Ibeta);
 }
 
-void A4954::writeDACs(float current_alpha, float current_beta)
+void A4954_class::writeDACs(float current_alpha, float current_beta)
 {
 
   if (current_alpha != 0 || current_beta != 0)
@@ -216,12 +216,12 @@ void A4954::writeDACs(float current_alpha, float current_beta)
   }
 }
 
-void A4954::calcLookup()
+void A4954_class::calcLookup()
 {
   double temp;
   for (uint16_t i = 0; i < 200; i++)
   {
-    temp = tanh((((double)i - 100.0) / 100.0) * M_Pi) * 0.95 * mySettings.PA;
+    temp = tanh((((double)i - 100.0) / 100.0) * M_Pi) * 0.95 * Settings.PA;
     phaseadvancedTable[i] = (float)temp;
   }
 }

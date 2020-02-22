@@ -11,8 +11,8 @@
 void init_calibrate_menu()
 {
   // generates the commands and dependencies for this "submenu"
-  myCommander.cmdAdd(calibrate_command, "start calibration routine", calibration);
-  myCommander.cmdAdd("fullsteps", "prints the current fullsteps to the serial monitor", printfullsteps);
+  Commander.cmdAdd(calibrate_command, "start calibration routine", calibration);
+  Commander.cmdAdd("fullsteps", "prints the current fullsteps to the serial monitor", printfullsteps);
 }
 
 void printfullsteps()
@@ -20,7 +20,7 @@ void printfullsteps()
   Serial.println("Current fullsteps of the calibrated motor");
   for (uint8_t i = 0; i < 200; i++)
   {
-    Serial.print(mySettings.fullsteps.data[i]);
+    Serial.print(Settings.fullsteps.data[i]);
     Serial.print(", ");
   }
 

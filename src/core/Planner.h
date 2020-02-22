@@ -3,10 +3,10 @@
 #ifndef __PLANNER_H__
 #define __PLANNER_H__
 
-class Planner
+class Planner_class
 {
 public:
-    Planner();
+    Planner_class();
 
     float setTarget(float); /* sets new target based on current movement mode */
 

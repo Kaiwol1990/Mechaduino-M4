@@ -6,11 +6,11 @@
 #ifndef _STEPINTERFACE_H_
 #define _STEPINTERFACE_H_
 
-class stepInterface
+class stepInterface_class
 {
 public:
   // public functions
-  stepInterface(uint32_t, uint32_t, uint32_t, float, float);
+  stepInterface_class(uint32_t, uint32_t, uint32_t, float, float);
 
   // setup function
   void setup();

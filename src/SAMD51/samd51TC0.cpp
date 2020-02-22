@@ -49,7 +49,7 @@ void samd51TC0::disable()
 void TC0_Handler()
 {
   // A overflow caused the interrupt -> Call user function
-  myCommander.cmdPoll();
+  Commander.cmdPoll();
 
   // Clear the interrupt
   TC0->COUNT16.INTFLAG.bit.MC0 = 1;

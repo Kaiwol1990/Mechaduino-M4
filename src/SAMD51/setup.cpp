@@ -26,7 +26,7 @@ void setupSPI()
 {
   SPISettings settingsA(10000000, MSBFIRST, SPI_MODE1);
 
-  SPI.begin(); //AS5047D SPI uses mode=1 (CPOL=0, CPHA=1)
+  SPI.begin(); //AS5047D_class SPI uses mode=1 (CPOL=0, CPHA=1)
   delay(1000);
   SPI.beginTransaction(settingsA);
 }

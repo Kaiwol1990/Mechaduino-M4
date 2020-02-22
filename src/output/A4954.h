@@ -6,10 +6,10 @@
 
 //void output(float electric_angle, float effort) __attribute__ ((optimize("O3")));
 
-class A4954
+class A4954_class
 {
 public:
-  A4954(uint32_t pinIN1, uint32_t pinIN2, uint32_t pinIN3, uint32_t pinIN4, uint32_t pinDAC1, uint32_t pinDAC2);
+  A4954_class(uint32_t pinIN1, uint32_t pinIN2, uint32_t pinIN3, uint32_t pinIN4, uint32_t pinDAC1, uint32_t pinDAC2);
 
   // setup function
   void init();
